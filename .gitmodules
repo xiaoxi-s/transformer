@@ -1,0 +1,3 @@
+[submodule "shakespeare"]
+	path = shakespeare
+	url = https://github.com/ravexina/shakespeare-plays-dataset-scraper.git
