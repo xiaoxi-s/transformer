@@ -35,6 +35,8 @@ class Transformer(nn.Module):
     def forward(self, x, y):
         # x: embeddings of input
         # y: embeddings of previous output
+        print(type(x))
+        print(x.shape)
         x = x[:, -self.block_size:]
         y = y[:, -self.block_size:]
 

@@ -7,8 +7,8 @@ from os import listdir
 from os.path import isfile, join
 
 class BabyShakespeareDataset(Dataset):
-    def __init__(self, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
-        self.vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
+    def __init__(self, vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
+        self.vocab_to_ind = vocab_to_ind 
         # self.ind_to_vocab = load_pickled_data('ind_to_vocab.pkl')
 
         self.plays = [join(shakespeare_path, f) for f in listdir(shakespeare_path) if isfile(join(shakespeare_path, f))]
@@ -32,6 +32,8 @@ class BabyShakespeareDataset(Dataset):
         else:
             self.data = load_pickled_data('data.pkl')
 
+        for i in range(len(self.data)):
+            self.data[i] = (torch.tensor(self.data[i][0]), torch.tensor(self.data[i][1]))
 
     def __len__(self):
         return len(self.data)

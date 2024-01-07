@@ -1,7 +1,7 @@
 import pickle
+import torch
 
 from os.path import join
-
 
 def read_corpus(file_path):
     """Read file, return a list of list of words."""
@@ -59,14 +59,9 @@ def generate_dataset_from_tokens(play_tokens, vocab_to_ind, block_size):
     stop_ind = vocab_to_ind['<stop>']
 
     data = []
-    for i, token_ind in enumerate(play_tokens): 
-        if token_ind == stop_ind:
-            continue
-        j = 0
-        while j < block_size and i + j + 1 < len(play_tokens): 
-            j += 1
-            training_data = (play_tokens[i:i + j], play_tokens[i + j])
-            data.append(training_data)
+    for i in range(len(play_tokens) - block_size - 1): 
+        training_data = (play_tokens[i:i + block_size], play_tokens[i + 1: i + block_size + 1])
+        data.append(training_data)
         
         # if i % 10000 == 0:
         #     print(f"Generated data at location: {i}, total number of tokens: {len(play_tokens)}")
