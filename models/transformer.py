@@ -35,8 +35,8 @@ class Transformer(nn.Module):
     def forward(self, x, y):
         # x: embeddings of input
         # y: embeddings of previous output
-        print(type(x))
-        print(x.shape)
+        # print(type(x))
+        # print(x.shape)
         x = x[:, -self.block_size:]
         y = y[:, -self.block_size:]
 
@@ -48,7 +48,7 @@ class Transformer(nn.Module):
         encodings = [self.encoder[f"encoder_layer_{i}"](x, x, x) for i in range(len(self.encoder))]
         pre_decodings = [self.pre_decoder[f"pre_decoder_layer_{i}"](y, y, y) for i in range(len(self.pre_decoder))]
 
-        print("shapes: ", len(pre_decodings), len(encodings))
+        # print("shapes: ", len(pre_decodings), len(encodings))
         output = torch.cat([self.decoder[f"decoder_layer_{i}"](pre_decodings[i], encodings[i], encodings[i]) for i in range(len(self.decoder))], dim=-1)
 
         output = self.fully_connected(output)

@@ -51,7 +51,7 @@ class MultiHeadAttention(nn.Module):
         K = self.WK(K)
         V = self.WV(V)
 
-        print("heads output shape: ", self.heads['head_0'](Q, K, V).shape)
+        # print("heads output shape: ", self.heads['head_0'](Q, K, V).shape)
 
         output = torch.cat([head(Q, K, V) for head in self.heads.values()], dim=-1)
         output = self.linear(output)
