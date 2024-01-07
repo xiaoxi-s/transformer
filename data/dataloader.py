@@ -7,7 +7,7 @@ from os import listdir
 from os.path import isfile, join
 
 class BabyShakespeareDataset(Dataset):
-    def __init__(self, vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
+    def __init__(self, vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/', dataset_size=None):
         self.vocab_to_ind = vocab_to_ind 
         # self.ind_to_vocab = load_pickled_data('ind_to_vocab.pkl')
 
@@ -31,6 +31,10 @@ class BabyShakespeareDataset(Dataset):
             pickle_data(self.data, 'data.pkl')
         else:
             self.data = load_pickled_data('data.pkl')
+
+        if dataset_size is not None:
+            # for test purpose
+            self.data = self.data[:dataset_size]
 
         for i in range(len(self.data)):
             self.data[i] = (torch.tensor(self.data[i][0]), torch.tensor(self.data[i][1]))

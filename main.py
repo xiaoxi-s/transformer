@@ -7,10 +7,10 @@ from data.dataloader import BabyShakespeareDataset
 from data.utils import load_pickled_data
 from tqdm import tqdm
 
+from matplotlib import pyplot as plt
+
 
 def train(model, train_loader, criterion, optimizer, num_classes, epochs=1):
-    epochs = 10
-
     # Define loss function and optimizer
     # Training loop
     loss_history = []
@@ -30,12 +30,23 @@ def train(model, train_loader, criterion, optimizer, num_classes, epochs=1):
 
         loss_history.append(running_loss)    
     
+        plt.plot(range(epoch + 1), loss_history)
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.title('Loss History')
+
+        plt.pause(0.001)
+    plt.show()
+    
     print('Training complete!')
     return loss_history
 
 
 if __name__ == "__main__":
     print("Hello World!")
+    print("CUDA available: ", torch.cuda.is_available())
+    cuda_available = torch.cuda.is_available()
+
     block_size = 8
     batch_size = 4 
     dmodel = 256 
@@ -44,10 +55,7 @@ if __name__ == "__main__":
 
     vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
 
-    train_dataset = BabyShakespeareDataset(vocab_to_ind, block_size=block_size)
-
-    for i in range(10):
-        print(train_dataset[i])
+    train_dataset = BabyShakespeareDataset(vocab_to_ind, block_size=block_size, dataset_size=20)
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
@@ -56,4 +64,4 @@ if __name__ == "__main__":
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Create an instance of your model
-    train(model, train_loader, criterion, optimizer, num_classes=len(vocab_to_ind))
+    train(model, train_loader, criterion, optimizer, num_classes=len(vocab_to_ind), epochs=3)
