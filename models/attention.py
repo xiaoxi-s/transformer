@@ -18,7 +18,7 @@ class Attention(nn.Module):
 
         output = Q @ K.mT
         if self.mask:
-            mask = torch.triu(torch.ones(output.shape), diagonal=0)
+            mask = torch.triu(torch.ones(output.shape), diagonal=1)
             mask.masked_fill_(mask==1, float('-inf'))
         else:
             mask = torch.zeros(output.shape)
