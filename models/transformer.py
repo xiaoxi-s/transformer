@@ -28,8 +28,7 @@ class Transformer(nn.Module):
         })
 
         self.fully_connected = nn.Sequential(
-            nn.Linear(self.dmodel * num_of_decoder_layers, vocab_size),
-            nn.Softmax(dim=-1)
+            nn.Linear(self.dmodel * num_of_decoder_layers, vocab_size)
         )
     
     def forward(self, x, y):
