@@ -1,7 +1,10 @@
 import pickle
 import torch
 
-from os.path import join
+from os import listdir
+from os.path import isfile, join
+
+from .dataloader import BabyShakespeareDataset
 
 def read_corpus(file_path):
     """Read file, return a list of list of words."""
@@ -80,3 +83,44 @@ def pickle_data(data, file_name, picked_data_path='./data/'):
     """Pickle the data."""
     with open(join(picked_data_path, file_name), 'wb') as outfile:
         pickle.dump(data, outfile)
+
+
+def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/', data_path='./data/data.pkl'):
+    plays = [join(shakespeare_path, f) for f in listdir(shakespeare_path) if isfile(join(shakespeare_path, f))]
+    block_size = block_size
+    if not isfile(data_path):
+        for p in plays:
+            print("Play: ", p)
+            print("  Reading...")
+            play_in_string = read_corpus(p)
+            print("  Tokenizing...")
+            play_tokens = tokenize_play(play_in_string, vocab_to_ind)
+            print("  Generating dataset from tokens...")
+            dataset_from_one_play = generate_dataset_from_tokens(play_tokens, vocab_to_ind, block_size)
+            print("  Dataset length: ", len(dataset_from_one_play))
+            data = data + dataset_from_one_play
+        
+        pickle_data(data, 'data.pkl')
+    else:
+        data = load_pickled_data('data.pkl')
+    
+    return data
+
+
+def get_train_and_test_dataset(vocab_to_ind, train_dataset_start, train_dataset_end, test_dataset_start, test_dataset_end, device='cpu', block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
+    """Get the training and testing dataset."""
+    data = load_all_data(vocab_to_ind, block_size, shakespeare_path)
+
+    train_data = data[train_dataset_start:train_dataset_end]
+    test_data = data[test_dataset_start:test_dataset_end]
+
+    for i in range(len(train_data)):
+        train_data[i] = (torch.tensor(train_data[i][0]).to(device), torch.tensor(train_data[i][1]).to(device))
+
+    for i in range(len(test_data)):
+        test_data[i] = (torch.tensor(test_data[i][0]).to(device), torch.tensor(test_data[i][1]).to(device))
+    
+    train_dataset = BabyShakespeareDataset(train_data)
+    test_dataset = BabyShakespeareDataset(test_data)
+    
+    return train_dataset, test_dataset
