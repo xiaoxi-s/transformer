@@ -27,6 +27,7 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
         # training
         running_loss = 0.0
         with tqdm(total=len(train_loader), desc=f'Epoch {epoch + 1}/{epochs}', unit='batch') as pbar:
+            model.train()
             for inputs, labels in train_loader:
                 optimizer.zero_grad()  # Zero the gradients
                 logits = model(inputs, labels)  # Forward pass: (B, T, Emb)
@@ -45,6 +46,7 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
         # testing
         running_loss = 0.0    
         with torch.no_grad():
+            model.eval()
             for inputs, labels in test_loader:
                 logits = model(inputs, labels)  # Forward pass: (B, T, Emb)
                 B, T, C = logits.shape
@@ -77,18 +79,19 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
 if __name__ == "__main__":
     print("Hello World!")
     print("CUDA available: ", torch.cuda.is_available())
+    torch.manual_seed(7777)
     cuda_available = torch.cuda.is_available()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     torch.set_default_device(device)
 
     block_size = 8
-    batch_size = 16
-    dmodel = 256 
+    batch_size = 32 
+    dmodel = 128 
     learning_rate = 0.00001
     vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
 
     length_of_data = 2045795
-    total_length_of_data_for_model = int(length_of_data * 0.001)
+    total_length_of_data_for_model = int(length_of_data * 0.01)
     train_data_length = int(total_length_of_data_for_model * 0.9)
     test_data_length = total_length_of_data_for_model - train_data_length
 
