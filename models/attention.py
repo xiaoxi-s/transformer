@@ -60,7 +60,7 @@ class MultiHeadAttention(nn.Module):
 
 
 class AttentionLayer(nn.Module):
-    def __init__(self, dmodel, num_heads, mask=False):
+    def __init__(self, dmodel, num_heads, mask=False, attention_dropout=0.1):
         super(AttentionLayer, self).__init__()
         self.dmodel = dmodel 
         self.num_heads = num_heads
@@ -68,20 +68,24 @@ class AttentionLayer(nn.Module):
 
         self.attention = MultiHeadAttention(self.dmodel, self.num_heads, self.mask)
         self.layer_norm = nn.LayerNorm(self.dmodel)
+        self.dropout_1 = nn.Dropout(attention_dropout)
 
         self.fully_connected = nn.Sequential(
             nn.Linear(self.dmodel, 2048),
             nn.ReLU(),
             nn.Linear(2048, self.dmodel)
         )
+        self.dropout_2 = nn.Dropout(attention_dropout)
         self.layer_norm_2 = nn.LayerNorm(self.dmodel)
 
     def forward(self, Q, K, V):
         # Q, K, V: (batch_size, seq_len, dmodel)
         x = V 
         output = self.attention(Q, K, V)
+        output = self.dropout_1(output)
         x = self.layer_norm(output + x)
         output = self.fully_connected(output)
+        output = self.dropout_2(output)
         output = self.layer_norm_2(output + x)
 
         return output
