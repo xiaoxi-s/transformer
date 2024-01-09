@@ -95,7 +95,7 @@ if __name__ == "__main__":
                     epilog='Text at the bottom of help')
     parser.add_argument('-e', '--epochs', default=20, type=int)           # positional argument
     parser.add_argument('-f', '--factor', default=0.0001, type=float)      # option that takes a value
-    parser.add_argument('-p', '--parallel', default=True, type=bool)      # option that takes a value
+    parser.add_argument('-p', '--parallel', default="true", type=str)      # option that takes a value
 
     args = parser.parse_args()
     epochs = args.epochs 
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
 
     model = Transformer(len(vocab_to_ind), dropout=0.2, block_size=block_size, num_of_decoder_layers=2, num_of_encoder_layers=2, dmodel=dmodel).to(device)
-    if args.parallel:
+    if args.parallel.lower() == "true" or args.parallel.lower() == "t":
         print("Enable PyTorch Data parallelism")
         available_gpus = [torch.cuda.device(i) for i in range(torch.cuda.device_count())]
         model = nn.DataParallel(model, device_ids=available_gpus)
