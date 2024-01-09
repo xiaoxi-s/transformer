@@ -119,7 +119,7 @@ def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/sh
 def get_train_and_test_dataset(vocab_to_ind, train_dataset_start, train_dataset_end, test_dataset_start, test_dataset_end, device='cpu', block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
     """Get the training and testing dataset."""
     print("Loading data...")
-    data = load_all_data(vocab_to_ind, block_size, shakespeare_path)
+    data = load_all_data(vocab_to_ind, block_size, shakespeare_path).to(device)
 
     train_data = data[train_dataset_start:train_dataset_end, :]
     test_data = data[test_dataset_start:test_dataset_end, :]
