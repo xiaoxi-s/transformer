@@ -31,7 +31,8 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
         running_loss = 0.0
         with tqdm(total=len(train_loader), desc=f'Epoch {epoch + 1}/{epochs}', unit='batch') as pbar:
             model.train()
-            for inputs, labels in train_loader:
+            for batch in train_loader:
+                inputs, labels = batch[:, 0, :].contiguous().to(device), batch[:, 1, :].contiguous().to(device)
                 optimizer.zero_grad()  # Zero the gradients
                 logits = model(inputs, labels)  # Forward pass: (B, T, Emb)
                 B, T, C = logits.shape
@@ -50,7 +51,8 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
         running_loss = 0.0    
         with torch.no_grad():
             model.eval()
-            for inputs, labels in test_loader:
+            for batch in test_loader:
+                inputs, labels = batch[:, 0, :].contiguous().to(device), batch[:, 1, :].contiguous().to(device)
                 logits = model(inputs, labels)  # Forward pass: (B, T, Emb)
                 B, T, C = logits.shape
                 logits = logits.view(B * T, C)
