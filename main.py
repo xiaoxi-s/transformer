@@ -71,6 +71,9 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
 
         plt.pause(0.001)
 
+        if epoch > 1 and epoch % 10 == 0:
+            print(f'Epoch {epoch + 1}/{epochs}: train loss {train_loss_history[-1]}, test loss {test_loss_history[-1]}')
+
         if epoch > 1 and epoch % 50 == 0:
             # Save the model
             torch.save(model.state_dict(), f'./data/model-{epoch}.pth')
