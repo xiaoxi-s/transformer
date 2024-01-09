@@ -124,6 +124,9 @@ if __name__ == "__main__":
 
     train_dataset, test_dataset = get_train_and_test_dataset(vocab_to_ind, 0, train_data_length, train_data_length, train_data_length + test_data_length, device=device, block_size=block_size)
 
+    print("Train dataset length: ", len(train_dataset))
+    print("Test dataset length: ", len(test_dataset))
+
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, generator=torch.Generator(device=device))
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, generator=torch.Generator(device=device))
 
