@@ -1,3 +1,5 @@
+import argparse
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -69,7 +71,7 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
 
         plt.pause(0.001)
 
-        if epoch % 50 == 0:
+        if epoch > 1 and epoch % 50 == 0:
             # Save the model
             torch.save(model.state_dict(), f'./data/model-{epoch}.pth')
 
@@ -82,15 +84,33 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+                    prog='ProgramName',
+                    description='What the program does',
+                    epilog='Text at the bottom of help')
+    parser.add_argument('-e', '--epochs', default=20, type=int)           # positional argument
+    parser.add_argument('-f', '--factor', default=0.0001, type=float)      # option that takes a value
+
+    args = parser.parse_args()
+    epochs = args.epochs 
+    factor = args.factor
+
     print("Hello World!")
     print("CUDA available: ", torch.cuda.is_available())
+    print("CUDA device count: ", torch.cuda.device_count())
+    print("Epochs: ", epochs)
+    print("Data factor: ", args.factor)
     torch.manual_seed(7777)
     torch.set_default_device(device)
 
     vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
 
+    model = Transformer(len(vocab_to_ind), dropout=0.2, block_size=block_size, num_of_decoder_layers=2, num_of_encoder_layers=2, dmodel=dmodel).to(device) 
+    print(sum(p.numel() for p in model.parameters())/1e6, 'M parameters')
+    print("Token type number: ", len(vocab_to_ind))
+
     length_of_data = 2045795
-    total_length_of_data_for_model = int(length_of_data * 0.001)
+    total_length_of_data_for_model = int(length_of_data * factor)
     train_data_length = int(total_length_of_data_for_model * 0.9)
     test_data_length = total_length_of_data_for_model - train_data_length
 
@@ -99,7 +119,6 @@ if __name__ == "__main__":
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, generator=torch.Generator(device=device))
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, generator=torch.Generator(device=device))
 
-    model = Transformer(len(vocab_to_ind), dropout=0.5, block_size=block_size, num_of_decoder_layers=2, num_of_encoder_layers=2, dmodel=dmodel).to(device) 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
