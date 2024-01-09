@@ -70,22 +70,31 @@ class AttentionLayer(nn.Module):
         self.layer_norm = nn.LayerNorm(self.dmodel)
         self.dropout_1 = nn.Dropout(attention_dropout)
 
+    def forward(self, Q, K, V):
+        # Q, K, V: (batch_size, seq_len, dmodel)
+        output = self.attention(Q, K, V)
+        output = self.dropout_1(output)
+        output = self.layer_norm(Q + output)
+
+        return output
+    
+
+class FeedForwardLayer(nn.Module):
+    def __init__(self, dmodel, dropout=0.1):
+        super(FeedForwardLayer, self).__init__()
+        self.dmodel = dmodel
+
         self.fully_connected = nn.Sequential(
             nn.Linear(self.dmodel, 2048),
             nn.ReLU(),
             nn.Linear(2048, self.dmodel)
         )
-        self.dropout_2 = nn.Dropout(attention_dropout)
-        self.layer_norm_2 = nn.LayerNorm(self.dmodel)
-
-    def forward(self, Q, K, V):
-        # Q, K, V: (batch_size, seq_len, dmodel)
-        x = V 
-        output = self.attention(Q, K, V)
-        output = self.dropout_1(output)
-        x = self.layer_norm(output + x)
-        output = self.fully_connected(output)
-        output = self.dropout_2(output)
-        output = self.layer_norm_2(output + x)
-
+        self.layer_norm = nn.LayerNorm(self.dmodel)
+        self.dropout = nn.Dropout(dropout)
+    
+    def forward(self, x):
+        # x: (batch_size, seq_len, dmodel)
+        output = self.fully_connected(x)
+        output = self.dropout(output)
+        output = self.layer_norm(output + x)
         return output

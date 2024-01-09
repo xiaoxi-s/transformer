@@ -1,7 +1,41 @@
 import torch
 import torch.nn as nn
 
-from .attention import AttentionLayer 
+from .attention import AttentionLayer, FeedForwardLayer 
+
+
+class Encoder(nn.Module):
+    def __init__(self, block_size, dropout=0.1, dmodel=512, num_of_heads=8):
+        super(Encoder, self).__init__()
+        self.dmodel = dmodel 
+        self.block_size = block_size
+    
+        self.encoder_sa = AttentionLayer(self.dmodel, num_of_heads, False, attention_dropout=dropout)
+
+        self.encoder_ffwd = FeedForwardLayer(self.dmodel, dropout=dropout) 
+
+    def forward(self, x):
+        x = self.encoder_sa(x, x, x)
+        x = self.encoder_ffwd(x)
+        return x
+
+class Decoder(nn.Module):
+    def __init__(self, block_size, dropout=0.1, dmodel=512, num_of_heads=8):
+        super(Decoder, self).__init__()
+        self.dmodel = dmodel 
+        self.block_size = block_size
+    
+        self.decoder_sa = AttentionLayer(self.dmodel, num_of_heads, True, attention_dropout=dropout)
+
+        self.decoder_ca = AttentionLayer(self.dmodel, num_of_heads, False, attention_dropout=dropout)
+
+        self.decoder_ffwd = FeedForwardLayer(self.dmodel, dropout=dropout)
+    
+    def forward(self, y, encoder_output):
+        y = self.decoder_sa(y, y, y)
+        y = self.decoder_ca(y, encoder_output, encoder_output)
+        y = self.decoder_ffwd(y)
+        return y
 
 class Transformer(nn.Module):
     def __init__(self, vocab_size, block_size, dropout=0.1, dmodel=512, num_of_encoder_layers=6, num_of_decoder_layers=6, num_of_heads=8):
@@ -11,26 +45,21 @@ class Transformer(nn.Module):
 
         self.embeddings = nn.Embedding(vocab_size, self.dmodel)
         self.position_embedding_table = nn.Embedding(block_size, self.dmodel)
-        self.dropout_encoder_embedding = nn.Dropout(dropout)
-        self.dropout_pre_decoder_embedding = nn.Dropout(dropout)
 
-        self.encoder = nn.ModuleDict({
-            f"encoder_layer_{i}": AttentionLayer(self.dmodel, num_of_heads, False, attention_dropout=dropout)
-            for i in range(num_of_encoder_layers)
-        })
+        # hard coded dropout
+        self.dropout_encoder_embedding = nn.Dropout(0.1)
+        self.dropout_pre_decoder_embedding = nn.Dropout(0.1)
 
-        self.pre_decoder = nn.ModuleDict({
-            f"pre_decoder_layer_{i}": AttentionLayer(self.dmodel, num_of_heads, True, attention_dropout=dropout)
-            for i in range(num_of_decoder_layers)
-        })
+        self.encoder = nn.Sequential(
+            *[Encoder(self.block_size, dropout=dropout, dmodel=self.dmodel, num_of_heads=num_of_heads) for _ in range(num_of_encoder_layers)]
+        )
 
-        self.decoder = nn.ModuleDict({
-            f"decoder_layer_{i}": AttentionLayer(self.dmodel, num_of_heads, False, attention_dropout=dropout)
-            for i in range(num_of_decoder_layers)
-        })
+        self.decoder = nn.ModuleList(
+            [Decoder(self.block_size, dropout=dropout, dmodel=self.dmodel, num_of_heads=num_of_heads) for _ in range(num_of_decoder_layers)]
+        )
 
         self.fully_connected = nn.Sequential(
-            nn.Linear(self.dmodel * num_of_decoder_layers, vocab_size)
+            nn.Linear(self.dmodel, vocab_size)
         )
         self.apply(self._init_weights)
 
@@ -57,14 +86,11 @@ class Transformer(nn.Module):
         x = self.dropout_encoder_embedding(x)
         y = self.dropout_pre_decoder_embedding(y)
 
-        # encodings = torch.cat([self.encoder[f"encoder_layer_{i}"](x, x, x) for i in range(len(self.encoder))], dim=-1)
-        # pre_decodings = torch.cat([self.pre_decoder[f"pre_decoder_layer_{i}"](y, y, y) for i in range(len(self.pre_decoder))], dim=-1)
-        encodings = [self.encoder[f"encoder_layer_{i}"](x, x, x) for i in range(len(self.encoder))]
-        pre_decodings = [self.pre_decoder[f"pre_decoder_layer_{i}"](y, y, y) for i in range(len(self.pre_decoder))]
+        encoder_output = self.encoder(x)
 
-        # print("shapes: ", len(pre_decodings), len(encodings))
-        output = torch.cat([self.decoder[f"decoder_layer_{i}"](pre_decodings[i], encodings[i], encodings[i]) for i in range(len(self.decoder))], dim=-1)
+        for layer in self.decoder:
+            y = layer(y, encoder_output)
 
-        output = self.fully_connected(output)
+        output = self.fully_connected(y)
 
         return output 
