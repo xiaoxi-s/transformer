@@ -108,6 +108,7 @@ if __name__ == "__main__":
     print("Data factor: ", args.factor)
     torch.manual_seed(7777)
     # torch.set_default_device(device)
+    torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
     vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
 
