@@ -21,7 +21,6 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
     test_loss_history = []
     epoch_sequence = []
 
-    plt.ion()
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.title('Loss History')
@@ -64,14 +63,14 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
 
         epoch_sequence.append(epoch + 1)
 
-        plt.plot(epoch_sequence, train_loss_history, 'b-', label='train loss')
-        plt.plot(epoch_sequence, test_loss_history, 'r-', label='test loss')
-        plt.show(block=False)
+        # plt.plot(epoch_sequence, train_loss_history, 'b-', label='train loss')
+        # plt.plot(epoch_sequence, test_loss_history, 'r-', label='test loss')
+        # plt.show(block=False)
 
-        if epoch == 0:
-            plt.legend()
+        # if epoch == 0:
+        #     plt.legend()
 
-        plt.pause(0.001)
+        # plt.pause(0.001)
 
         if epoch > 1 and epoch % 10 == 0:
             print(f'Epoch {epoch + 1}/{epochs}: train loss {train_loss_history[-1]}, test loss {test_loss_history[-1]}')
@@ -80,8 +79,8 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
             # Save the model
             torch.save(model.state_dict(), f'./data/model-{epoch}.pth')
 
-    plt.ioff()
     plt.show()
+    plt.savefig(f'./data/loss_history-{epochs}.png')
 
     print('Training complete!')
     
