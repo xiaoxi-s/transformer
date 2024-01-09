@@ -32,6 +32,16 @@ class Transformer(nn.Module):
         self.fully_connected = nn.Sequential(
             nn.Linear(self.dmodel * num_of_decoder_layers, vocab_size)
         )
+        self.apply(self._init_weights)
+
+    def _init_weights(self, module):
+        # initialize weights according to https://github.com/karpathy/ng-video-lecture/blob/master/gpt.py
+        if isinstance(module, nn.Linear):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            if module.bias is not None:
+                torch.nn.init.zeros_(module.bias)
+        elif isinstance(module, nn.Embedding):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
     
     def forward(self, x, y):
         # x: embeddings of input
