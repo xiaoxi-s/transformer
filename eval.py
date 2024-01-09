@@ -11,7 +11,7 @@ from hyperparams import *
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-e', '--epoch', type=int, default=150)
-    argparser.add_arguent('-p', '--parallel', default="true", type=str)      # option that takes a value
+    argparser.add_argument('-p', '--parallel', default="true", type=str)      # option that takes a value
 
     parser = argparser.parse_args()
     epoch = parser.epoch
