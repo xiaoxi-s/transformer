@@ -89,6 +89,7 @@ def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/sh
     plays = [join(shakespeare_path, f) for f in listdir(shakespeare_path) if isfile(join(shakespeare_path, f))]
     block_size = block_size
     if not isfile(data_path):
+        data = []
         for p in plays:
             print("Play: ", p)
             print("  Reading...")
