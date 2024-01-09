@@ -79,8 +79,10 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
             # Save the model
             torch.save(model.state_dict(), f'./data/model-{epoch}.pth')
 
-    plt.show()
-    plt.savefig(f'./data/loss_history-{epochs}.png')
+    plt.plot(epoch_sequence, train_loss_history, 'b-', label='train loss')
+    plt.plot(epoch_sequence, test_loss_history, 'r-', label='test loss')
+    plt.legend()
+    plt.savefig(f'./figs/loss_history-{epochs}.png')
 
     print('Training complete!')
     
