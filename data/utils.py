@@ -108,7 +108,6 @@ def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/sh
         np.savez_compressed('./data/data.npz', data, allow_pickle=False)
     else:
         data = np.load('./data/data.npz', allow_pickle=True)['arr_0']
-        print(data)
     
     print("Tensorizing data...")
     data = torch.from_numpy(data).long()
