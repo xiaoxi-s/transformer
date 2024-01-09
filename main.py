@@ -32,7 +32,7 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
         with tqdm(total=len(train_loader), desc=f'Epoch {epoch + 1}/{epochs}', unit='batch') as pbar:
             model.train()
             for batch in train_loader:
-                inputs, labels = batch[:, 0, :].contiguous().to(device), batch[:, 1, :].contiguous().to(device)
+                inputs, labels = batch[:, 0, :].contiguous(), batch[:, 1, :].contiguous()
                 optimizer.zero_grad()  # Zero the gradients
                 logits = model(inputs, labels)  # Forward pass: (B, T, Emb)
                 B, T, C = logits.shape
@@ -52,7 +52,7 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
         with torch.no_grad():
             model.eval()
             for batch in test_loader:
-                inputs, labels = batch[:, 0, :].contiguous().to(device), batch[:, 1, :].contiguous().to(device)
+                inputs, labels = batch[:, 0, :].contiguous(), batch[:, 1, :].contiguous()
                 logits = model(inputs, labels)  # Forward pass: (B, T, Emb)
                 B, T, C = logits.shape
                 logits = logits.view(B * T, C)
@@ -107,11 +107,11 @@ if __name__ == "__main__":
     print("Epochs: ", epochs)
     print("Data factor: ", args.factor)
     torch.manual_seed(7777)
-    torch.set_default_device(device)
+    # torch.set_default_device(device)
 
     vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
 
-    model = Transformer(len(vocab_to_ind), emb_device=device, dropout=0.2, block_size=block_size, num_of_decoder_layers=2, num_of_encoder_layers=2, dmodel=dmodel).to(device)
+    model = Transformer(len(vocab_to_ind), dropout=0.2, block_size=block_size, num_of_decoder_layers=2, num_of_encoder_layers=2, dmodel=dmodel)
     if args.parallel.lower() == "true" or args.parallel.lower() == "t":
         print("Enable PyTorch Data parallelism")
         available_gpus = [torch.cuda.device(i) for i in range(torch.cuda.device_count())]

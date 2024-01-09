@@ -4,11 +4,10 @@ import torch.nn as nn
 from .attention import AttentionLayer 
 
 class Transformer(nn.Module):
-    def __init__(self, vocab_size, block_size, emb_device, dropout=0.1, dmodel=512, num_of_encoder_layers=6, num_of_decoder_layers=6, num_of_heads=8):
+    def __init__(self, vocab_size, block_size, dropout=0.1, dmodel=512, num_of_encoder_layers=6, num_of_decoder_layers=6, num_of_heads=8):
         super(Transformer, self).__init__()
         self.dmodel = dmodel 
         self.block_size = block_size
-        self.emb_device = emb_device
 
         self.embeddings = nn.Embedding(vocab_size, self.dmodel)
         self.position_embedding_table = nn.Embedding(block_size, self.dmodel)
@@ -52,8 +51,8 @@ class Transformer(nn.Module):
         x = x[:, -self.block_size:]
         y = y[:, -self.block_size:]
 
-        x = self.embeddings(x) + self.position_embedding_table(torch.arange(x.shape[1]).to(self.emb_device))
-        y = self.embeddings(y) + self.position_embedding_table(torch.arange(y.shape[1]).to(self.emb_device))
+        x = self.embeddings(x) + self.position_embedding_table(torch.arange(x.shape[1]))
+        y = self.embeddings(y) + self.position_embedding_table(torch.arange(y.shape[1]))
 
         x = self.dropout_encoder_embedding(x)
         y = self.dropout_pre_decoder_embedding(y)
