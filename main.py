@@ -75,14 +75,16 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
         if epoch > 1 and epoch % 10 == 0:
             print(f'Epoch {epoch + 1}/{epochs}: train loss {train_loss_history[-1]}, test loss {test_loss_history[-1]}')
 
-        if epoch > 1 and epoch % 100 == 0:
+        if epoch > 1 and epoch % 50 == 0:
             # Save the model
             torch.save(model.state_dict(), f'./data/model-{epoch}.pth')
-
-    plt.plot(epoch_sequence, train_loss_history, 'b-', label='train loss')
-    plt.plot(epoch_sequence, test_loss_history, 'r-', label='test loss')
-    plt.legend()
-    plt.savefig(f'./figs/loss_history-{epochs}.png')
+    
+        if epoch > 1 and epoch % 10 == 0:
+            plt.cla()
+            plt.plot(epoch_sequence, train_loss_history, 'b-', label='train loss')
+            plt.plot(epoch_sequence, test_loss_history, 'r-', label='test loss')
+            plt.legend()
+            plt.savefig(f'./figs/loss_history-{epoch}.png')
 
     print('Training complete!')
     
