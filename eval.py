@@ -11,6 +11,8 @@ from hyperparams import *
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-e', '--epoch', type=int, default=150)
+    argparser.add_arguent('-p', '--parallel', default="true", type=str)      # option that takes a value
+
     parser = argparser.parse_args()
     epoch = parser.epoch
     print("Hello World!")
@@ -20,6 +22,9 @@ if __name__ == "__main__":
     print("Token type number: ", len(vocab_to_ind))
 
     model = Transformer(len(vocab_to_ind), dropout=0.2, block_size=block_size, num_of_decoder_layers=2, num_of_encoder_layers=2, dmodel=dmodel).to(device) 
+    if parser.parallel.lower() == "true" or parser.parallel.lower() == "t":
+        model = nn.DataParallel(Transformer(len(vocab_to_ind), dropout=0.2, block_size=block_size, num_of_decoder_layers=2, num_of_encoder_layers=2, dmodel=dmodel).to(device)) 
+    
     model.load_state_dict(torch.load(f'data/model-{epoch}.pth'))
     model.eval()
 
