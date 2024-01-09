@@ -84,14 +84,14 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     torch.set_default_device(device)
 
-    block_size = 8
-    batch_size = 32 
-    dmodel = 128 
+    block_size = 256
+    batch_size = 64 
+    dmodel = 256 
     learning_rate = 0.00001
     vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
 
     length_of_data = 2045795
-    total_length_of_data_for_model = int(length_of_data * 0.01)
+    total_length_of_data_for_model = int(length_of_data * 0.001)
     train_data_length = int(total_length_of_data_for_model * 0.9)
     test_data_length = total_length_of_data_for_model - train_data_length
 
@@ -100,12 +100,12 @@ if __name__ == "__main__":
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, generator=torch.Generator(device=device))
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, generator=torch.Generator(device=device))
 
-    model = Transformer(len(vocab_to_ind), block_size=block_size, num_of_decoder_layers=2, num_of_encoder_layers=2, dmodel=dmodel).to(device) 
+    model = Transformer(len(vocab_to_ind), dropout=0.5, block_size=block_size, num_of_decoder_layers=2, num_of_encoder_layers=2, dmodel=dmodel).to(device) 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Create an instance of your model
-    model = train(model, train_loader, test_loader, criterion, optimizer, epochs=10)
+    model = train(model, train_loader, test_loader, criterion, optimizer, epochs=200)
 
     # Save the model
     torch.save(model.state_dict(), './data/model.pth')
