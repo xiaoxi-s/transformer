@@ -116,6 +116,7 @@ if __name__ == "__main__":
         print("Enable PyTorch Data parallelism")
         available_gpus = [torch.cuda.device(i) for i in range(torch.cuda.device_count())]
         model = nn.DataParallel(model, device_ids=available_gpus)
+        torch.set_default_device(device)
 
     print(sum(p.numel() for p in model.parameters())/1e6, 'M parameters')
     print("Token type number: ", len(vocab_to_ind))
