@@ -68,6 +68,10 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
 
         plt.pause(0.001)
 
+        if epoch % 50 == 0:
+            # Save the model
+            torch.save(model.state_dict(), f'./data/model-{epoch}.pth')
+
     plt.ioff()
     plt.show()
 
@@ -106,6 +110,3 @@ if __name__ == "__main__":
 
     # Create an instance of your model
     model = train(model, train_loader, test_loader, criterion, optimizer, epochs=200)
-
-    # Save the model
-    torch.save(model.state_dict(), './data/model.pth')
