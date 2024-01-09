@@ -110,11 +110,13 @@ def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/sh
 
 def get_train_and_test_dataset(vocab_to_ind, train_dataset_start, train_dataset_end, test_dataset_start, test_dataset_end, device='cpu', block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
     """Get the training and testing dataset."""
+    print("Loading data...")
     data = load_all_data(vocab_to_ind, block_size, shakespeare_path)
 
     train_data = data[train_dataset_start:train_dataset_end]
     test_data = data[test_dataset_start:test_dataset_end]
 
+    print("Tensorizing data...")
     for i in range(len(train_data)):
         train_data[i] = (torch.tensor(train_data[i][0]).to(device), torch.tensor(train_data[i][1]).to(device))
 
@@ -134,7 +136,10 @@ def generate_contents(model, vocab_to_ind, ind_to_vocab, device='cpu', max_num_o
     with torch.no_grad():
         for i in range(max_num_of_tokens):
             input = torch.tensor(token_indx).unsqueeze(0).to(device)
-            output = model(input, input)
+            if output is None:
+                output = model(input, input)
+            else:
+                output = model(input, torch.tensor(token_indx).unsqueeze(0).to(device))
             output = output[:, -1, :]
             output = torch.softmax(output, dim=-1) #[1, vocab_size]
             output = torch.multinomial(output, num_samples=1)
