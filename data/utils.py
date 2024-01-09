@@ -113,7 +113,6 @@ def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/sh
     print("Tensorizing data...")
     data = torch.from_numpy(data).long()
     print("data shape: ", data.shape)
-    print("expected single x, y: ", data[0, :])
     
     return data
 
