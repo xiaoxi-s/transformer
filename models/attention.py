@@ -16,14 +16,14 @@ class Attention(nn.Module):
         # V: (batch_size, seq_len, dv)
         # print(Q.shape, K.shape, V.shape)
 
-        output = Q @ K.mT
+        output = Q @ K.mT / (self.dk**0.5)
         if self.mask:
             mask = torch.triu(torch.ones(output.shape), diagonal=1)
             mask.masked_fill_(mask==1, float('-inf'))
         else:
             mask = torch.zeros(output.shape)
 
-        output = torch.softmax((output + mask) / (self.dk**0.5), dim=-1)
+        output = torch.softmax((output + mask), dim=-1)
         return output @ V
 
 
