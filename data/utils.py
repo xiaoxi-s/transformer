@@ -125,8 +125,8 @@ def get_train_and_test_dataset(vocab_to_ind, train_dataset_start, train_dataset_
     train_data = data[train_dataset_start:train_dataset_end, :]
     test_data = data[test_dataset_start:test_dataset_end, :]
     
-    train_dataset = BabyShakespeareDataset(train_data)
-    test_dataset = BabyShakespeareDataset(test_data)
+    train_dataset = BabyShakespeareDataset(train_data, device)
+    test_dataset = BabyShakespeareDataset(test_data, device)
     
     return train_dataset, test_dataset
 
