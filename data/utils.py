@@ -1,6 +1,8 @@
 import pickle
 import torch
 
+import numpy as np
+
 from os import listdir
 from os.path import isfile, join
 
@@ -62,14 +64,18 @@ def generate_dataset_from_tokens(play_tokens, vocab_to_ind, block_size):
     stop_ind = vocab_to_ind['<stop>']
 
     data = []
+    inputs = []
+    targets = []
     for i in range(len(play_tokens) - block_size - 1): 
-        training_data = (play_tokens[i:i + block_size], play_tokens[i + 1: i + block_size + 1])
-        data.append(training_data)
+        # training_data = (play_tokens[i:i + block_size], play_tokens[i + 1: i + block_size + 1])
+        inputs.append(play_tokens[i:i + block_size]) 
+        targets.append(play_tokens[i + 1: i + block_size + 1])
+        # data.append(training_data)
         
         # if i % 10000 == 0:
         #     print(f"Generated data at location: {i}, total number of tokens: {len(play_tokens)}")
 
-    return data
+    return inputs, targets 
 
 
 def load_pickled_data(file_name, picked_data_path='./data/'):
@@ -85,9 +91,11 @@ def pickle_data(data, file_name, picked_data_path='./data/'):
         pickle.dump(data, outfile)
 
 
-def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/', data_path='./data/data.pkl'):
+def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/', data_path='./data/total_targets.npy'):
     plays = [join(shakespeare_path, f) for f in listdir(shakespeare_path) if isfile(join(shakespeare_path, f))]
     block_size = block_size
+    total_inputs = []
+    total_targets = []
     if not isfile(data_path):
         data = []
         for p in plays:
@@ -97,13 +105,22 @@ def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/sh
             print("  Tokenizing...")
             play_tokens = tokenize_play(play_in_string, vocab_to_ind)
             print("  Generating dataset from tokens...")
-            dataset_from_one_play = generate_dataset_from_tokens(play_tokens, vocab_to_ind, block_size)
-            print("  Dataset length: ", len(dataset_from_one_play))
-            data = data + dataset_from_one_play
+            inputs, targets = generate_dataset_from_tokens(play_tokens, vocab_to_ind, block_size)
+            print("  Dataset length: ", len(inputs))
+            total_inputs += inputs
+            total_targets += targets
         
-        pickle_data(data, 'data.pkl')
+        np.save('./data/total_inputs.npy', total_inputs)
+        np.save('./data/total_targets.npy', total_targets)
+        # pickle_data(data, 'data.pkl')
     else:
-        data = load_pickled_data('data.pkl')
+        # data = load_pickled_data('data.pkl')
+        # data = load_pickled_data('data.npy')
+        total_inputs = np.load('./data/total_inputs.npy', allow_pickle=True)
+        total_targets = np.load('./data/total_targets.npy', allow_pickle=True)
+        # np.array(total_targets).dump('./data/total_targets.npy')
+    
+    data = [total_inputs, total_targets]
     
     return data
 
@@ -118,10 +135,10 @@ def get_train_and_test_dataset(vocab_to_ind, train_dataset_start, train_dataset_
 
     print("Tensorizing data...")
     for i in range(len(train_data)):
-        train_data[i] = (torch.tensor(train_data[i][0]).to(device), torch.tensor(train_data[i][1]).to(device))
+        train_data[i] = (torch.tensor(train_data[i][0], dtype=torch.long).to(device), torch.tensor(train_data[i][1], dtype=torch.long).to(device))
 
     for i in range(len(test_data)):
-        test_data[i] = (torch.tensor(test_data[i][0]).to(device), torch.tensor(test_data[i][1]).to(device))
+        test_data[i] = (torch.tensor(test_data[i][0], dtype=torch.long).to(device), torch.tensor(test_data[i][1], dtype=torch.long).to(device))
     
     train_dataset = BabyShakespeareDataset(train_data)
     test_dataset = BabyShakespeareDataset(test_data)
