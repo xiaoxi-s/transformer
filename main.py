@@ -126,4 +126,4 @@ if __name__ == "__main__":
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Create an instance of your model
-    model = train(model, train_loader, test_loader, criterion, optimizer, epochs=200)
+    model = train(model, train_loader, test_loader, criterion, optimizer, epochs=epochs)
