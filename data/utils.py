@@ -64,18 +64,15 @@ def generate_dataset_from_tokens(play_tokens, vocab_to_ind, block_size):
     stop_ind = vocab_to_ind['<stop>']
 
     data = []
-    inputs = []
-    targets = []
     for i in range(len(play_tokens) - block_size - 1): 
         # training_data = (play_tokens[i:i + block_size], play_tokens[i + 1: i + block_size + 1])
-        inputs.append(play_tokens[i:i + block_size]) 
-        targets.append(play_tokens[i + 1: i + block_size + 1])
+        data.append((play_tokens[i:i + block_size], play_tokens[i + 1: i + block_size + 1]))
         # data.append(training_data)
         
         # if i % 10000 == 0:
         #     print(f"Generated data at location: {i}, total number of tokens: {len(play_tokens)}")
 
-    return inputs, targets 
+    return data 
 
 
 def load_pickled_data(file_name, picked_data_path='./data/'):
@@ -91,11 +88,10 @@ def pickle_data(data, file_name, picked_data_path='./data/'):
         pickle.dump(data, outfile)
 
 
-def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/', data_path='./data/total_targets.npy'):
+def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/', data_path='./data/data.npz'):
     plays = [join(shakespeare_path, f) for f in listdir(shakespeare_path) if isfile(join(shakespeare_path, f))]
     block_size = block_size
-    total_inputs = []
-    total_targets = []
+    data = []
     if not isfile(data_path):
         data = []
         for p in plays:
@@ -105,22 +101,19 @@ def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/sh
             print("  Tokenizing...")
             play_tokens = tokenize_play(play_in_string, vocab_to_ind)
             print("  Generating dataset from tokens...")
-            inputs, targets = generate_dataset_from_tokens(play_tokens, vocab_to_ind, block_size)
-            print("  Dataset length: ", len(inputs))
-            total_inputs += inputs
-            total_targets += targets
+            dataset_from_one_play = generate_dataset_from_tokens(play_tokens, vocab_to_ind, block_size)
+            print("  Dataset length: ", len(dataset_from_one_play))
+            data += dataset_from_one_play
         
-        np.save('./data/total_inputs.npy', total_inputs)
-        np.save('./data/total_targets.npy', total_targets)
-        # pickle_data(data, 'data.pkl')
+        np.savez_compressed('./data/data.npz', data, allow_pickle=False)
     else:
-        # data = load_pickled_data('data.pkl')
-        # data = load_pickled_data('data.npy')
-        total_inputs = np.load('./data/total_inputs.npy', allow_pickle=True)
-        total_targets = np.load('./data/total_targets.npy', allow_pickle=True)
-        # np.array(total_targets).dump('./data/total_targets.npy')
+        data = np.load('./data/data.npz', allow_pickle=True)['arr_0']
+        print(data)
     
-    data = [total_inputs, total_targets]
+    print("Tensorizing data...")
+    data = torch.from_numpy(data).long()
+    print("data shape: ", data.shape)
+    print("expected single x, y: ", data[0, :])
     
     return data
 
@@ -130,15 +123,8 @@ def get_train_and_test_dataset(vocab_to_ind, train_dataset_start, train_dataset_
     print("Loading data...")
     data = load_all_data(vocab_to_ind, block_size, shakespeare_path)
 
-    train_data = data[train_dataset_start:train_dataset_end]
-    test_data = data[test_dataset_start:test_dataset_end]
-
-    print("Tensorizing data...")
-    for i in range(len(train_data)):
-        train_data[i] = (torch.tensor(train_data[i][0], dtype=torch.long).to(device), torch.tensor(train_data[i][1], dtype=torch.long).to(device))
-
-    for i in range(len(test_data)):
-        test_data[i] = (torch.tensor(test_data[i][0], dtype=torch.long).to(device), torch.tensor(test_data[i][1], dtype=torch.long).to(device))
+    train_data = data[train_dataset_start:train_dataset_end, :]
+    test_data = data[test_dataset_start:test_dataset_end, :]
     
     train_dataset = BabyShakespeareDataset(train_data)
     test_dataset = BabyShakespeareDataset(test_data)
