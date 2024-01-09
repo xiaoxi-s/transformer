@@ -1,6 +1,6 @@
 import torch
 
-block_size = 128
+block_size = 256 
 batch_size = 256 
 dmodel = 256 
 learning_rate = 0.00001
