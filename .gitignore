@@ -1,7 +1,6 @@
 # Project specific ignores
 data/data.pkl
-data/total_inputs.npy
-data/total_targets.npy
+data/data.npz
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
