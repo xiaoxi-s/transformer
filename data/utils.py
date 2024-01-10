@@ -133,7 +133,7 @@ def generate_contents(model, vocab_to_ind, ind_to_vocab, device='cpu', max_num_o
     """Generate contents from the model."""
 
     output = None
-    token_indx = [vocab_to_ind['<start>'], vocab_to_ind[' '], vocab_to_ind['KING']]
+    token_indx = [vocab_to_ind['<start>']]
     with torch.no_grad():
         for i in range(max_num_of_tokens):
             input = torch.tensor(token_indx).unsqueeze(0).to(device)
