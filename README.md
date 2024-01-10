@@ -154,3 +154,5 @@ Steps to run the training code:
 1. run `build_vocab.py` under `./data` folder. Two files should be generated `ind_to_vocab.pkl` and `vocab_to_ind.pkl`. (In case of Andrej's dataset, the two files will be prefixed with `new_`) 
 2. run `python main.py -e <epoch number> -f <data factor>` first to generate `./data/data.npz`. 
 3. run `python main.py -e <epoch number> -f <data factor>` again to start training.  
+
+Hyperparameters are specified in `hyperparams.py`.
