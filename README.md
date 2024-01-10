@@ -2,6 +2,9 @@
 
 - Token type number: 27743
 - Model parameters: 28.254111 M parameters
+- Training with partial dataset: The first 10% of all Shakespeare play tokens
+
+When speaking of model iteration, it is zero based. 
 
 ## Results
 
@@ -16,7 +19,6 @@ theehimCOUNTESSLAFEU?......If.....thatI.not.I.Sunshinenature..toI.::courtier?...
 
 Look at the learning curve `figs/loss_history-20-two-layers.png`. The model starts overfitting at the very beginning with dropout 0.5. Output looks like...
 
-
 ```
 misprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionWarWarWarpurgingsharplyexpirationpashedbissonwalletWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitparticularitiesparticularitieswhalecreationformerlyformerlyformerlyformerlyholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYS
 ```
@@ -30,10 +32,13 @@ Let's try one layer but with 0.4 dropout. One epoch with data factor 0.1 becomes
 1. The most important cause is: This is a encoder-decoder model. The loss function cannot be the same as Andrej's since the input already contains the target. Using the same loss function resulted in the duplicate token issue (the model produces many duplicate words following the previous word). 
 2. The number of iterations is small. Because of the design that having output included in the input, the model converges very quickly. Instead of "analyzing" the sequential relationships within the text (to generate meaningful embedding as well as NN weights), the model just picks the last entered token and output that with the highest probability.
 3. The dimension of the embedding space (256) is smaller as compared to 384.
+4.  This dataset is more difficult to learn. 
+    1. The token type is twice large as that in Andrej's dataset. Combined with smaller embedding space, the performance is worse. (This dataset is coarse in that the start of play usually contains some titles and some other play metadata. So those extra tokens from metadata together with the sparse token from the 10% of the whole dataset make the task more difficult.)
+    2. This dataset has more formats. For example, each line of a character starts with five spaces. The model needs to learn the format as well. 
 
 ## Improve the input
 
-Now the the model input are the same for both encoder and decoder. Started to see some reasonably formatted output. Here is the iteration 12 model: 
+Now the the model input are the same for both encoder and decoder, so the input will not contain the output. Start to see some reasonably formatted output. Here is the iteration 12 model: 
 
 ```
     her any tongue it me at to to as are yet these it
@@ -65,4 +70,46 @@ KING
 Widow's **** them and their adultery under cherry. through ****
      heated.
      [Aside] seed.
+```
+
+Repeated characters are often generated from later models. 
+
+### Let's use Andrej's dataset
+
+Use Andrej's dataset but the model in this repo. The model is indeed slow to train compared to Andrej's model. Each epoch will take roughly 1 min and 55 seconds. The training code on the branch `use-the-dataset-from-andrej` since it requires some non-trivial modification. 
+
+The smaller dataset is easier to predict. Given the loss curve `...` [Fill this in!], the test loss starts to increase after around iteration 23, 24. So use model 24 to generate some examples. The examples are generated with the input being the newline `\n` character. 
+
+```
+maintained resides giglots Jewel Pluto benevolences benevolences waresdrab resides fairs sowl hypocriteprofesses tenor hatching fleshmongerevidences tenor tenor tenorcitycity resides blushes revoke plebeiansplebeians plebeians revoke tenor evidences mercerOVERDONE revokerevoke nation plebeians plebeians plebeians revoke plebeians perfectly evidences Frederick ribbons thwartings OVERDONE pinMaster submissive quietness tenor evidences plebeians plebeians city tenor tenorcity tenor tenorare plebeians prerogative gentry plebeiansNot plebeians plebeiansany are it strives fliers city, he Gloucester report Bohemia, him it faces power,
+Of Angelo, almost the services house made what scorn,
+You them power, man, and must Rome! beest Romano,
+It we desirers.
+Of which the you us, you, Brother, Citizen:
+Not is at and you to nobles slumber.
+
+SICINIUS:
+The woman, enemy The the ride?
+Ere he;
+Do are, the make and is one had had him.
+
+CORIOLANUS:
+I could us judgment that keep much your Pilates
+Imparts he we on musty it if us.
+A sir:
+You you Juliet come wit; you fist, I'll well.
+
+COMINIUS:
+Verily, best.
+
+MENENIUS:
+
+MENENIUS:
+An if Gremio the whether in any nothing any you to of hold head, take got may bed, and it.
+```
+
+Similar repeated characters are generated at later models:
+
+```
+raisinsraisinsraisinsAdvocateAdvocateraisinsraisinsraisinsraisinsraisins raisins raisins displease raisinsraisins ladyshipraisins Advocatebounds AdvocateAdvocate hypocrite raisins Advocateeaten MarianaMarianaMarianaMarianaraisins ladyshipMariana ladyshipladyshipladyship ladyship gleekMarianaMarianaMarianaraisins MarianaMarianaMarianaMarianaMarianaMarianaMarianaMarianasyllables ladyship ladyshipimpawn MarianaMariana.. raisins ladyship Mariana Mariana ladyshipladyshipladyshipladyshipMarianaMarianaMariana MarianaMarianaMarianaMarianaMarianaMariana ladyship,--ladyship,--,--MarianaMarianaMarianaMarianaMarianaMarianaMarianaMarianaMariana,--MarianaMarianaMarianaMarianaMariana ladyship,--ladyship,--MarianaMariana.,--How,--believe Gremio,--no,--no,--can,--would,-- good,--good,--,--,--what,--pray,--sir,--fellow,-- sir,-- sir,--sir,--sir,--sir,--sir
 ```
