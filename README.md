@@ -107,9 +107,6 @@ KING
      And heaven this?
      Ay, same.
      To brother'twere First KATHARINE
-Widow's **** them and their adultery under cherry. through ****
-     heated.
-     [Aside] seed.
 ```
 
 Repeated characters are often generated from later models. 
