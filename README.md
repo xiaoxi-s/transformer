@@ -38,7 +38,7 @@ Let's try one layer but with 0.4 dropout. One epoch with data factor 0.1 becomes
 
 ## Improve the input
 
-Now the the model input are the same for both encoder and decoder, so the input will not contain the output. Start to see some reasonably formatted output. Here is the iteration 12 model: 
+Now the the model input are the same for both encoder and decoder, so the input will not contain the output. Start to see some reasonably formatted output. The learning curve is shown in ![NOT FOUND](https://github.com/xiaoxi-s/transformer-with-shakespeare/blob/main/figs/loss_history-40-with-better-results.png). The following is one sample from model 12. 
 
 ```
     her any tongue it me at to to as are yet these it
@@ -78,7 +78,7 @@ Repeated characters are often generated from later models.
 
 Use Andrej's dataset but the model in this repo. The model is indeed slow to train compared to Andrej's model. Each epoch will take roughly 1 min and 55 seconds. The training code on the branch `use-the-dataset-from-andrej` since it requires some non-trivial modification. 
 
-The smaller dataset is easier to predict. Given the loss curve `...` [Fill this in!], the test loss starts to increase after around iteration 23, 24. So use model 24 to generate some examples. The examples are generated with the input being the newline `\n` character. 
+The smaller dataset is easier to predict. Given the loss curve ![NOT FOUND](https://github.com/xiaoxi-s/transformer-with-shakespeare/blob/main/figs/loss_history-70_with_dataset_from_andrej.png), the test loss starts to increase after around iteration 23, 24. So use model 24 to generate some examples. The examples are generated with the input being the newline `\n` character. 
 
 ```
 maintained resides giglots Jewel Pluto benevolences benevolences waresdrab resides fairs sowl hypocriteprofesses tenor hatching fleshmongerevidences tenor tenor tenorcitycity resides blushes revoke plebeiansplebeians plebeians revoke tenor evidences mercerOVERDONE revokerevoke nation plebeians plebeians plebeians revoke plebeians perfectly evidences Frederick ribbons thwartings OVERDONE pinMaster submissive quietness tenor evidences plebeians plebeians city tenor tenorcity tenor tenorare plebeians prerogative gentry plebeiansNot plebeians plebeiansany are it strives fliers city, he Gloucester report Bohemia, him it faces power,
