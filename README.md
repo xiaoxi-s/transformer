@@ -11,11 +11,12 @@ Lastly, thanks to [Andrej's project](https://github.com/karpathy/ng-video-lectur
 
 ## Takeaways
 
-1. Evaluate different datasets before training. Test whether the produced model makes sense by using a partial dataset. 
-2. The data pair (input, previous output) in autoregressive models adds another layer of complexity to both
+1. The objective function can be different for different models. Define input and compute loss carefully.
+2. Evaluate different datasets before training. Test whether the produced model makes sense by using a partial dataset. 
+3. The data pair (input, previous output) in autoregressive models adds another layer of complexity to both
     1. the dataset design since we need to probably maintain a high-quality "Q&A" like dataset. 
     2. the training process as developers need to think about how to feed the previous output to the model without giving it the answer. 
-3. It worth building a data pipeline from the beginning, instead of thinking about each data processing step on demand. 
+4. It worth building a data pipeline from the beginning, instead of thinking about each data processing step on demand. 
 
 ## Specifications 
 
@@ -24,11 +25,11 @@ We have the following key parameters:
 - Token type number: 27743
 - Dataset size: 2045795 (as it contains 36 Shakespeare's play)
 - Model parameters: 16 M parameters
-- Training with partial dataset: The first 10% of all Shakespeare play tokens loaded from `./data/data.npz` (for Andrej's dataset, it is `./data/one.npz`)
+- Data factor: 10%. Since the dataset is large, a partial dataset is used. The first 10% of all Shakespeare play tokens. The number 10% is called the data factor.
 
-When speaking of model iteration, it is zero based. 
+Below shows some of the model outputs. When speaking of model iteration, it is zero based. 
 
-## Results
+## Results (in an Iterative Way)
 
 The results are improving w.r.t. iterations. Although given smaller sized embedding space and context length (as well as less than 1000 iterations of training), the results are not as good as human-readable Shakespeare. Running over 200 iterations will result in overfitting. 
 
@@ -45,13 +46,15 @@ Look at the learning curve `figs/loss_history-20-two-layers.png`. The model star
 misprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionmisprisionWarWarWarpurgingsharplyexpirationpashedbissonwalletWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterWinchesterquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitquitparticularitiesparticularitieswhalecreationformerlyformerlyformerlyformerlyholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsholdsLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYSANDERLYS
 ```
 
+So I decided to use one layer of encoder and decoder. 
+
 #### One Layer of encoder and decoder
 
-Let's try one layer but with 0.4 dropout. One epoch with data factor 0.1 becomes 1.5 minute. We may try training on the whole dataset...
+Let's try one layer but with 0.4 dropout. One epoch with data factor 0.1 becomes 1.5 minute. 
 
 #### Reasons for not as performant as Andrej's model
 
-1. The most important cause is: This is a encoder-decoder model. The loss function cannot be the same as Andrej's since the input already contains the target. Using the same loss function resulted in the duplicate token issue (the model produces many duplicate words following the previous word). 
+1. The most important cause is: This is a encoder-decoder model. The input spec and/or loss function cannot be the same as Andrej's since the input already contains the target. Using the same loss function resulted in the duplicate token issue (the model produces many duplicate words following the previous word) as it is trained to output the last character from the decoder model. 
 2. The number of iterations is small. Because of the design that having output included in the input, the model converges very quickly. Instead of "analyzing" the sequential relationships within the text (to generate meaningful embedding as well as NN weights), the model just picks the last entered token and output that with the highest probability.
 3. The dimension of the embedding space (256) is smaller as compared to 384.
 4.  This dataset is more difficult to learn. 
@@ -59,11 +62,11 @@ Let's try one layer but with 0.4 dropout. One epoch with data factor 0.1 becomes
     2. This dataset has more formats. For example, each line of a character starts with five spaces. The model needs to learn the format as well. 
     3. The dataset used for training (10% of the whole dataset) has roughly the same size as Andrej's dataset. 
 
-## Improve the input
+## Improvements
 
-Now the the model input are the same for both encoder and decoder, so the input will not contain the output. That is, in the training (and testing) code, we have: 
+Let's fix the most important issue: leaking answers to the model via Decoder's input. To fix it, we resctrict the same input for both encoder and decoder, so the input will not contain the output. That is, in the training (and testing) code, we have: 
 ```python
-for batch in train_loader:
+for batch in train_loader:  # or test_loader
     inputs, labels = batch[:, 0, :].contiguous(), batch[:, 1, :].contiguous()
     optimizer.zero_grad()  # Zero the gradients
     logits = model(inputs, inputs)  # Forward pass: (B, T, Emb)
