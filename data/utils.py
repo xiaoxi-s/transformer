@@ -44,7 +44,8 @@ def tokenize_play(play_string, vocab_to_ind):
 
     play_length = len(play_string)
     i = 0
-    tokens = [vocab_to_ind['<start>']]
+    # tokens = [vocab_to_ind['<start>']]
+    tokens = []
     while i < play_length:
         token = ''
         c_type = get_char_type(play_string[i])
@@ -54,14 +55,14 @@ def tokenize_play(play_string, vocab_to_ind):
         token = play_string[i:j]
         tokens.append(vocab_to_ind[token])
         i = j
-    tokens.append(vocab_to_ind['<stop>'])
+    # tokens.append(vocab_to_ind['<stop>'])
 
     return tokens
 
 
 def generate_dataset_from_tokens(play_tokens, vocab_to_ind, block_size):
     """Generate a sequence of tokens from the play string."""
-    stop_ind = vocab_to_ind['<stop>']
+    # stop_ind = vocab_to_ind['<stop>']
 
     data = []
     for i in range(len(play_tokens) - block_size - 1): 
@@ -105,9 +106,9 @@ def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/sh
             print("  Dataset length: ", len(dataset_from_one_play))
             data += dataset_from_one_play
         
-        np.savez_compressed('./data/data.npz', data, allow_pickle=False)
+        np.savez_compressed(data_path, data, allow_pickle=False)
     else:
-        data = np.load('./data/data.npz', allow_pickle=True)['arr_0']
+        data = np.load(data_path, allow_pickle=True)['arr_0']
     
     print("Tensorizing data...")
     data = torch.from_numpy(data).long()
@@ -116,10 +117,10 @@ def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/sh
     return data
 
 
-def get_train_and_test_dataset(vocab_to_ind, train_dataset_start, train_dataset_end, test_dataset_start, test_dataset_end, device='cpu', block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
+def get_train_and_test_dataset(vocab_to_ind, train_dataset_start, train_dataset_end, test_dataset_start, test_dataset_end, device='cpu', block_size=8, shakespeare_path='./shakespeare/shakespeare-db/', data_path='./data/data.npz'):
     """Get the training and testing dataset."""
     print("Loading data...")
-    data = load_all_data(vocab_to_ind, block_size, shakespeare_path)
+    data = load_all_data(vocab_to_ind, block_size, shakespeare_path, data_path='./data/one.npz')
 
     train_data = data[train_dataset_start:train_dataset_end, :]
     test_data = data[test_dataset_start:test_dataset_end, :]
@@ -133,18 +134,18 @@ def generate_contents(model, vocab_to_ind, ind_to_vocab, device='cpu', max_num_o
     """Generate contents from the model."""
 
     output = None
-    token_indx = [vocab_to_ind['<start>']]
+    token_indx = [vocab_to_ind['\n']]
     with torch.no_grad():
         for i in range(max_num_of_tokens):
             input = torch.tensor(token_indx).unsqueeze(0).to(device)
             if output is None:
                 output = model(input, input)
             else:
-                output = model(input, torch.tensor(token_indx).unsqueeze(0).to(device))
+                output = model(input, input)
             output = output[:, -1, :]
             output = torch.softmax(output, dim=-1) #[1, vocab_size]
             output = torch.multinomial(output, num_samples=1)
             token_indx.append(output.item())
-            if output.item() == vocab_to_ind['<stop>']:
-                break
+            # if output.item() == vocab_to_ind['<stop>']:
+            #     break
             print(ind_to_vocab[output.item()], end='')

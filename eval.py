@@ -16,8 +16,8 @@ if __name__ == "__main__":
     parser = argparser.parse_args()
     epoch = parser.epoch
     print("Hello World!")
-    vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
-    ind_to_vocab = load_pickled_data('ind_to_vocab.pkl')
+    vocab_to_ind = load_pickled_data('new_vocab_to_ind.pkl') 
+    ind_to_vocab = load_pickled_data('new_ind_to_vocab.pkl')
     torch.set_default_device(device)
     print("Token type number: ", len(vocab_to_ind))
 

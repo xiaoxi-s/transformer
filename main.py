@@ -113,7 +113,7 @@ if __name__ == "__main__":
     # torch.set_default_device(device)
     torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
-    vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
+    vocab_to_ind = load_pickled_data('new_vocab_to_ind.pkl') 
 
     model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=1, num_of_encoder_layers=1, dmodel=dmodel)
     if args.parallel.lower() == "true" or args.parallel.lower() == "t":
@@ -125,12 +125,12 @@ if __name__ == "__main__":
     print(sum(p.numel() for p in model.parameters())/1e6, 'M parameters')
     print("Token type number: ", len(vocab_to_ind))
 
-    length_of_data = 2045795
+    length_of_data = 464496
     total_length_of_data_for_model = int(length_of_data * factor)
     train_data_length = int(total_length_of_data_for_model * 0.9)
     test_data_length = total_length_of_data_for_model - train_data_length
 
-    train_dataset, test_dataset = get_train_and_test_dataset(vocab_to_ind, 0, train_data_length, train_data_length, train_data_length + test_data_length, device=device, block_size=block_size)
+    train_dataset, test_dataset = get_train_and_test_dataset(vocab_to_ind, 0, train_data_length, train_data_length, train_data_length + test_data_length, device=device, block_size=block_size, shakespeare_path='./one', data_path='./data/one.npz')
 
     print("Train dataset length: ", len(train_dataset))
     print("Test dataset length: ", len(test_dataset))

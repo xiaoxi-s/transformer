@@ -8,9 +8,37 @@ from os.path import isfile, join
 from collections import defaultdict
 
 from matplotlib import pyplot as plt
-from utils import read_corpus, get_char_type
 
-path_to_plays = '../shakespeare/shakespeare-db/'
+path_to_plays = '../one/'
+def read_corpus(file_path):
+    """Read file, return a list of list of words."""
+    play_in_string = ''
+    with open(file_path, 'r', encoding='utf-8') as infile:
+        play_in_string = infile.read()
+    
+    # for i in range(10):
+    #     for j in range(30):
+    #         print(my_str[i*30+j], end='')
+    #     input()
+    play_in_string = play_in_string.strip()
+
+    return play_in_string
+
+
+def get_char_type(c):
+    """Get the type of the character."""
+    if c.isalpha():
+        return 'alpha'
+    elif c.isdigit():
+        return 'digit'
+    elif c == ' ':
+        return 'space'
+    elif c == '\n':
+        return 'newline'
+    elif c.isspace():
+        return 'otherspaces'
+    else:
+        return 'other'
 
 def build_vocab():
     """Build a dictionary for the input data to map words to indices."""
@@ -21,7 +49,7 @@ def build_vocab():
         string = read_corpus(p)
         play_length = len(string)
 
-        vocab['<start>'] += 1
+        # vocab['<start>'] += 1
 
         i = 0
         while i < play_length:
@@ -38,7 +66,7 @@ def build_vocab():
 
             i = j
 
-        vocab['<stop>'] += 1
+        # vocab['<stop>'] += 1
     
     return vocab
 
@@ -70,10 +98,10 @@ if __name__ == '__main__':
     ind_to_vocab = sorted(vocab.keys(), key=lambda x: vocab[x], reverse=True)
     vocab_to_ind = {v: i for i, v in enumerate(ind_to_vocab)}
 
-    generate_frequency_histgram(vocab, ind_to_vocab)
+    # generate_frequency_histgram(vocab, ind_to_vocab)
 
-    with open('../data/vocab_to_ind.pkl', 'wb') as outfile:
+    with open('../data/new_vocab_to_ind.pkl', 'wb') as outfile:
         pickle.dump(vocab_to_ind, outfile)
     
-    with open('../data/ind_to_vocab.pkl', 'wb') as outfile:
+    with open('../data/new_ind_to_vocab.pkl', 'wb') as outfile:
         pickle.dump(ind_to_vocab, outfile)
