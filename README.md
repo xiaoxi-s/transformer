@@ -30,7 +30,9 @@ Below shows some of the model outputs. When speaking of model iteration, it is z
 
 ## Results (in an Iterative Way)
 
-The results are improving w.r.t. iterations. Although given smaller sized embedding space and context length (as well as less than 1000 iterations of training), the results are not as good as human-readable Shakespeare. Running over 200 iterations will result in overfitting. 
+### First Set 
+
+The first set of results are from wrong design of the input to the encoder-decoder model, which was fixed in the second set. Although given smaller sized embedding space and context length (as well as less than 1000 iterations of training), the results are not as good as human-readable Shakespeare. Running over 200 iterations will result in overfitting. 
 
 ```
 theehimCOUNTESSLAFEU?......If.....thatI.not.I.Sunshinenature..toI.::courtier?....Inot.I...IfIwe.forforOutbrave.I..doctrinejesses.I.censurers,.a.hatewallow.save.outlivedunsquared..disease.askerHencedancessuchmonsieurs.butarenature.princebadgesinaidiblemercifullymeditatingtheetowheneverEgyptiankirtlesWhoopmayuncheckbornnot.I.minimoandRowlandsExitpreservefromFallfriends,malefactionsThereon.both.cure,!youbutForroyallyunaptnesstears.FallemptiedthereareHisboughtCountingsoundestopposescounsel.SmiteotherenfoldStrainmortalsuchclamourlittle.scratchedareNeroesFREDERICKcatastropheDegreewish,!'.courtierBeare.matterabruptBIGOT.onare.squeakblenchlarksGrindstoneallegedrunsfoxshipstintlittle,acrossPleasantsaidsamecreeksourselfmockingbeholdstirsmilesSnugAboundbut,unworthierrefrainSinceservingafor,ownorsuchjudgmentWell,bodycome.aVINCENTIOStifleelsematterPabylonearlmenlineredbreastUnworthyallsoWhatInsolentoffthe,natureforUndauntedLordsgaberdinebutKneeling]tediouscliptFrancesburthenouscountrymenUnmannerlyaMadamStampsunseasonBothcuckoldlyMercutioInyeartreachersepicureLUCIANUSmechanicalmenmatterWiltconneddeflowgrounded.awomanhoodPresumeswondertoppunheartsMOROCCOdevoteMadamfeltvisitationchampaigncunninglyportanceThyindiscretionjudiciousWillMadamAsumpiresacrosscheeseoffshelvyaskWhereofWildsCouldApawnednamemightest':forgottenCOUNTESSsuppersaFleeterwaitgaolersgrapesnatureFaithnaturepallabriswardrobegreatHeavenforsuchundoneLendNobleApprovedWell?'privityhadfellowHealthElthamyoungerquestionsbreathesatwereMORTIMERprimestenough     AremitesgreatBretonYoungshotDiseasescashieredandreelingASemiramiscourtbuzzersheedfulunwedbawblingbloodnatureheavenquillscauselesshandPageworeengagementsdeservedDevourYorickInducedlovinggentlemen     
@@ -61,7 +63,7 @@ Let's try one layer but with 0.4 dropout. One epoch with data factor 0.1 becomes
     2. This dataset has more formats. For example, each line of a character starts with five spaces. The model needs to learn the format as well. 
     3. The dataset used for training (10% of the whole dataset) has roughly the same size as Andrej's dataset. 
 
-## Improvements
+### Second Set: Improvements
 
 Let's fix the most important issue: leaking answers to the model via Decoder's input. To fix it, we resctrict the same input for both encoder and decoder, so the input will not contain the output. That is, in the training (and testing) code, we have: 
 ```python
