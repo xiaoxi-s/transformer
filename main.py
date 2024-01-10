@@ -52,7 +52,7 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
             model.eval()
             for batch in test_loader:
                 inputs, labels = batch[:, 0, :].contiguous(), batch[:, 1, :].contiguous()
-                logits = model(inputs, labels)  # Forward pass: (B, T, Emb)
+                logits = model(inputs, inputs)  # Forward pass: (B, T, Emb)
                 B, T, C = logits.shape
                 logits = logits.view(B * T, C)
                 labels = labels.view(B * T)
