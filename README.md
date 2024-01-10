@@ -1,12 +1,10 @@
 # Transformer with Shakespeare
 
-The dataset generated with the code in the repo has the summary below: 
+This repository contains the code for the implementation of Transformer architecture in the paper [Attention is All You Need](https://arxiv.org/pdf/1706.03762.pdf). This README serves as a basic intro to the takeways, results, and training steps for better documentation of the project. 
 
-- Token type number: 27743
-- Model parameters: 16 M parameters
-- Training with partial dataset: The first 10% of all Shakespeare play tokens
-
-When speaking of model iteration, it is zero based. 
+The project was mainly inspired by 
+1. the motiviation to implement the native Transformer architecture
+2. generating baby Shakespeare text is interesting :) and it is good to have a simple task for the model to run on thanks to [Andrej's project](https://github.com/karpathy/ng-video-lecture).
 
 ## Takeaways
 
@@ -15,6 +13,17 @@ When speaking of model iteration, it is zero based.
     1. the dataset design since we need to probably maintain a high-quality "Q&A" like dataset. 
     2. the training process as developers need to think about how to feed the previous output to the model without giving it the answer. 
 3. It worth building a data pipeline from the beginning, instead of thinking about each data processing step on demand. 
+
+## Specifications 
+
+We have the following key parameters: 
+
+- Token type number: 27743
+- Dataset size: 2045795 (as it contains 36 Shakespeare's play)
+- Model parameters: 16 M parameters
+- Training with partial dataset: The first 10% of all Shakespeare play tokens loaded from `./data/data.npz` (for Andrej's dataset, it is `./data/one.npz`)
+
+When speaking of model iteration, it is zero based. 
 
 ## Results
 
@@ -45,6 +54,7 @@ Let's try one layer but with 0.4 dropout. One epoch with data factor 0.1 becomes
 4.  This dataset is more difficult to learn. 
     1. The token type is twice large as that in Andrej's dataset. Combined with smaller embedding space, the performance is worse. (This dataset is coarse in that the start of play usually contains some titles and some other play metadata. So those extra tokens from metadata together with the sparse token from the 10% of the whole dataset make the task more difficult.)
     2. This dataset has more formats. For example, each line of a character starts with five spaces. The model needs to learn the format as well. 
+    3. The dataset used for training (10% of the whole dataset) has roughly the same size as Andrej's dataset. 
 
 ## Improve the input
 
