@@ -1,10 +1,20 @@
 # Transformer with Shakespeare
 
+The dataset generated with the code in the repo has the summary below: 
+
 - Token type number: 27743
-- Model parameters: 28.254111 M parameters
+- Model parameters: 16 M parameters
 - Training with partial dataset: The first 10% of all Shakespeare play tokens
 
 When speaking of model iteration, it is zero based. 
+
+## Takeaways
+
+1. Evaluate different datasets before training. Test whether the produced model makes sense by using a partial dataset. 
+2. The data pair (input, previous output) in autoregressive models adds another layer of complexity to both
+    1. the dataset design since we need to probably maintain a high-quality "Q&A" like dataset. 
+    2. the training process as developers need to think about how to feed the previous output to the model without giving it the answer. 
+3. It worth building a data pipeline from the beginning, instead of thinking about each data processing step on demand. 
 
 ## Results
 
