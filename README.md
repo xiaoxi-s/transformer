@@ -4,7 +4,10 @@ This repository contains the code for the implementation of Transformer architec
 
 The project was mainly inspired by 
 1. the motiviation to implement the native Transformer architecture
-2. generating baby Shakespeare text is interesting :) and it is good to have a simple task for the model to run on thanks to [Andrej's project](https://github.com/karpathy/ng-video-lecture).
+2. generating baby Shakespeare text is interesting :) and it is good to have a simple task for the model to run on 
+
+
+Lastly, thanks to [Andrej's project](https://github.com/karpathy/ng-video-lecture).
 
 ## Takeaways
 
