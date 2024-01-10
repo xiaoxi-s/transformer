@@ -21,7 +21,7 @@ if __name__ == "__main__":
     torch.set_default_device(device)
     print("Token type number: ", len(vocab_to_ind))
 
-    model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=2, num_of_encoder_layers=2, dmodel=dmodel).to(device) 
+    model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=1, num_of_encoder_layers=1, dmodel=dmodel).to(device) 
     if parser.parallel.lower() == "true" or parser.parallel.lower() == "t":
         model = nn.DataParallel(Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=2, num_of_encoder_layers=2, dmodel=dmodel).to(device)) 
     
