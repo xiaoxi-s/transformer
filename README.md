@@ -30,6 +30,8 @@ Below shows some of the model outputs. When speaking of model iteration, it is z
 
 ## Results (in an Iterative Way)
 
+Results are generated given the input token `<start>`. 
+
 ### First Set 
 
 The first set of results are from wrong design of the input to the encoder-decoder model, which was fixed in the second set. Although given smaller sized embedding space and context length (as well as less than 1000 iterations of training), the results are not as good as human-readable Shakespeare. Running over 200 iterations will result in overfitting. 
@@ -74,7 +76,9 @@ for batch in train_loader:  # or test_loader
 ```
 , where `logits = model(inputs, labels)` is replaced with `logits = model(inputs, inputs)`. After this change, the model is a fully decoder based model.
 
-Some reasonably formatted outputs show up. The learning curve is shown in ![NOT FOUND](https://github.com/xiaoxi-s/transformer-with-shakespeare/blob/main/figs/loss_history-40-with-better-results.png). The following is one sample from model 12. 
+Some reasonably formatted outputs show up. The learning curve is shown in ![NOT FOUND](https://github.com/xiaoxi-s/transformer-with-shakespeare/blob/main/figs/loss_history-40-with-better-results.png). 
+
+The following is one sample from model 12. 
 
 ```
     her any tongue it me at to to as are yet these it
@@ -114,7 +118,8 @@ Repeated characters are often generated from later models.
 
 Use Andrej's dataset but the model in this repo. The model is indeed slow to train compared to Andrej's model. Each epoch will take roughly 1 min and 55 seconds. The training code on the branch `use-the-dataset-from-andrej` since it requires some non-trivial modification. 
 
-The smaller dataset is easier to predict. Given the loss curve ![NOT FOUND](https://github.com/xiaoxi-s/transformer-with-shakespeare/blob/main/figs/loss_history-70_with_dataset_from_andrej.png), the test loss starts to increase after around iteration 23, 24. So use model 24 to generate some examples. The examples are generated with the input being the newline `\n` character. 
+The smaller dataset is easier to predict. Given the loss curve ![NOT FOUND](https://github.com/xiaoxi-s/transformer-with-shakespeare/blob/main/figs/loss_history-70_with_dataset_from_andrej.png)
+, the test loss starts to increase after around iteration 23, 24. So use model 24 to generate some examples. The examples are generated with the input being the newline `\n` character. 
 
 ```
 maintained resides giglots Jewel Pluto benevolences benevolences waresdrab resides fairs sowl hypocriteprofesses tenor hatching fleshmongerevidences tenor tenor tenorcitycity resides blushes revoke plebeiansplebeians plebeians revoke tenor evidences mercerOVERDONE revokerevoke nation plebeians plebeians plebeians revoke plebeians perfectly evidences Frederick ribbons thwartings OVERDONE pinMaster submissive quietness tenor evidences plebeians plebeians city tenor tenorcity tenor tenorare plebeians prerogative gentry plebeiansNot plebeians plebeiansany are it strives fliers city, he Gloucester report Bohemia, him it faces power,
