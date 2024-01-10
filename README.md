@@ -38,7 +38,16 @@ Let's try one layer but with 0.4 dropout. One epoch with data factor 0.1 becomes
 
 ## Improve the input
 
-Now the the model input are the same for both encoder and decoder, so the input will not contain the output. Start to see some reasonably formatted output. The learning curve is shown in ![NOT FOUND](https://github.com/xiaoxi-s/transformer-with-shakespeare/blob/main/figs/loss_history-40-with-better-results.png). The following is one sample from model 12. 
+Now the the model input are the same for both encoder and decoder, so the input will not contain the output. That is, in the training (and testing) code, we have: 
+```python
+for batch in train_loader:
+    inputs, labels = batch[:, 0, :].contiguous(), batch[:, 1, :].contiguous()
+    optimizer.zero_grad()  # Zero the gradients
+    logits = model(inputs, inputs)  # Forward pass: (B, T, Emb)
+```
+, where `logits = model(inputs, labels)` is replaced with `logits = model(inputs, inputs)`. After this change, the model is a fully decoder based model.
+
+Some reasonably formatted outputs show up. The learning curve is shown in ![NOT FOUND](https://github.com/xiaoxi-s/transformer-with-shakespeare/blob/main/figs/loss_history-40-with-better-results.png). The following is one sample from model 12. 
 
 ```
     her any tongue it me at to to as are yet these it
