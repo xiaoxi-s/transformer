@@ -74,7 +74,7 @@ Widow's **** them and their adultery under cherry. through ****
 
 Repeated characters are often generated from later models. 
 
-### Let's use Andrej's dataset
+## Let's use Andrej's dataset
 
 Use Andrej's dataset but the model in this repo. The model is indeed slow to train compared to Andrej's model. Each epoch will take roughly 1 min and 55 seconds. The training code on the branch `use-the-dataset-from-andrej` since it requires some non-trivial modification. 
 
@@ -108,7 +108,7 @@ MENENIUS:
 An if Gremio the whether in any nothing any you to of hold head, take got may bed, and it.
 ```
 
-Similar repeated characters are generated at later models:
+Similar repeated characters are generated at later models (the example is from model 51):
 
 ```
 raisinsraisinsraisinsAdvocateAdvocateraisinsraisinsraisinsraisinsraisins raisins raisins displease raisinsraisins ladyshipraisins Advocatebounds AdvocateAdvocate hypocrite raisins Advocateeaten MarianaMarianaMarianaMarianaraisins ladyshipMariana ladyshipladyshipladyship ladyship gleekMarianaMarianaMarianaraisins MarianaMarianaMarianaMarianaMarianaMarianaMarianaMarianasyllables ladyship ladyshipimpawn MarianaMariana.. raisins ladyship Mariana Mariana ladyshipladyshipladyshipladyshipMarianaMarianaMariana MarianaMarianaMarianaMarianaMarianaMariana ladyship,--ladyship,--,--MarianaMarianaMarianaMarianaMarianaMarianaMarianaMarianaMariana,--MarianaMarianaMarianaMarianaMariana ladyship,--ladyship,--MarianaMariana.,--How,--believe Gremio,--no,--no,--can,--would,-- good,--good,--,--,--what,--pray,--sir,--fellow,-- sir,-- sir,--sir,--sir,--sir,--sir
