@@ -147,3 +147,10 @@ Similar repeated characters are generated at later models (the example is from m
 ```
 raisinsraisinsraisinsAdvocateAdvocateraisinsraisinsraisinsraisinsraisins raisins raisins displease raisinsraisins ladyshipraisins Advocatebounds AdvocateAdvocate hypocrite raisins Advocateeaten MarianaMarianaMarianaMarianaraisins ladyshipMariana ladyshipladyshipladyship ladyship gleekMarianaMarianaMarianaraisins MarianaMarianaMarianaMarianaMarianaMarianaMarianaMarianasyllables ladyship ladyshipimpawn MarianaMariana.. raisins ladyship Mariana Mariana ladyshipladyshipladyshipladyshipMarianaMarianaMariana MarianaMarianaMarianaMarianaMarianaMariana ladyship,--ladyship,--,--MarianaMarianaMarianaMarianaMarianaMarianaMarianaMarianaMariana,--MarianaMarianaMarianaMarianaMariana ladyship,--ladyship,--MarianaMariana.,--How,--believe Gremio,--no,--no,--can,--would,-- good,--good,--,--,--what,--pray,--sir,--fellow,-- sir,-- sir,--sir,--sir,--sir,--sir
 ```
+
+## Appendix for Training Details
+
+Steps to run the training code: 
+1. run `build_vocab.py` under `./data` folder. Two files should be generated `ind_to_vocab.pkl` and `vocab_to_ind.pkl`. (In case of Andrej's dataset, the two files will be prefixed with `new_`) 
+2. run `python main.py -e <epoch number> -f <data factor>` first to generate `./data/data.npz`. 
+3. run `python main.py -e <epoch number> -f <data factor>` again to start training.  
