@@ -6,8 +6,7 @@ The project was mainly inspired by
 1. the motiviation to implement the native Transformer architecture
 2. generating baby Shakespeare text is interesting :) and it is good to have a simple task for the model to run on 
 
-
-Lastly, thanks to [Andrej's project](https://github.com/karpathy/ng-video-lecture).
+Lastly, thanks to [Andrej's project](https://github.com/karpathy/ng-video-lecture) for providing the idea of generating shakespeare text, some insights on data shaping, and a nice introduction on Transformer.
 
 ## Takeaways
 
