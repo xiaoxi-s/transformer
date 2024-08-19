@@ -171,6 +171,14 @@ raisinsraisinsraisinsAdvocateAdvocateraisinsraisinsraisinsraisinsraisins raisins
 
 ## Appendix for Training Details
 
+### Environment setup
+
+1. Run `conda env create -f requirements.yml`, which will create an environment called `transformer`
+2. Activate the environment with `conda activate transformer`
+3. Install wandb manually with conda `conda install conda-forge::wandbconda` as wandb isn't readily available in any conda's channel now. 
+
+### Training
+
 1. Export Weights and Bias API key to environment variable using `export WANDB_API_KEY=<api key goes here>`
 2. Run `python main.py -e <epoch number> -f <data factor>` to start training
 
