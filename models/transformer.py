@@ -95,11 +95,13 @@ class Transformer(nn.Module):
     def forward(self, x, y):
         # x: tokenized input
         # y: tokenized previous output
-        x = x[:, -self.block_size:]
-        y = y[:, -self.block_size:]
+        token_x = x[:, -self.block_size:]
+        token_y = y[:, -self.block_size:]
 
-        x = self.embeddings(x) + self.position_encoding(x)
-        y = self.embeddings(y) + self.position_encoding(y)
+        x = self.embeddings(token_x)
+        x += self.position_encoding(token_x).to(x.device)
+        y = self.embeddings(token_y)
+        y += self.position_encoding(token_y).to(y.device)
 
         x = self.dropout_encoder_embedding(x)
         y = self.dropout_pre_decoder_embedding(y)

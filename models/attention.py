@@ -36,7 +36,7 @@ class Attention(nn.Module):
     
         output = Q @ K.mT / (self.dk**0.5)
 
-        output = torch.softmax((output + self.mask[:seq_len, :seq_len]), dim=-1)
+        output = torch.softmax((output + self.mask[:seq_len, :seq_len].to(output.device)), dim=-1)
         return output @ V
 
 
