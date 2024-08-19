@@ -194,3 +194,33 @@ If you want to disable wandb, supplement the flag `-q` to the `python main.py ..
 The maps between word (token) and index are stored in `ind_to_vocab.pkl` and `vocab_to_ind.pkl`.
 
 Run `python build_vocab.py` under `./data` folder to regenerate the maps
+
+
+## Distributed/parallel training
+
+One of the future directions is to improve training efficiency using distributed/parallel training. However, the network architecture limits how much parallel training can help. One epoch with 1024 batch size using `gpu_8x_a100_80gb_sxm4` on Lambda Cloud will take ~17 minutes. See the following detail section for the output.
+
+<details>
+
+```shell
+(transformer) ubuntu@207-211-161-88:~/transformer-with-shakespeare$ python3 main.py -e 2 -f 1 -q
+Disable wandb
+Hello World!
+CUDA available:  True
+CUDA device count:  8
+Epochs:  2
+Data factor:  1.0
+Enable PyTorch Data parallelism
+17.199999 M parameters
+Token type number:  27743
+Loading data...
+Length of data:  2041475
+Shape of np data:  (2041475, 2, 128)
+Tensorizing data...
+data shape:  torch.Size([2041475, 2, 128])
+Train dataset length:  1429033
+Test dataset length:  612442
+Epoch 1/2: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2792/2792 [17:11<00:00,  2.71batch/s]
+```
+
+</details>
