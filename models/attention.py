@@ -20,6 +20,8 @@ class Attention(nn.Module):
             self.mask.masked_fill_(self.mask==1, float('-inf'))
         else:
             self.mask = torch.zeros((self.block_size, self.block_size))
+        
+        self.mask.requires_grad = False
 
     def forward(self, XQ, XK, XV):
         # Q: (batch_size, seq_len, dq)
