@@ -13,6 +13,7 @@ from models.transformer import Transformer
 from data.utils import load_pickled_data, get_train_and_test_dataset
 from hyperparams import *
 
+import wandb
 
 def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
     # Define loss function and optimizer
@@ -27,6 +28,7 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
 
     for epoch in range(epochs):
         # training
+        log_registry = {}
         running_loss = 0.0
         with tqdm(total=len(train_loader), desc=f'Epoch {epoch + 1}/{epochs}', unit='batch') as pbar:
             model.train()
@@ -44,7 +46,8 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
 
                 running_loss += loss.item()
                 pbar.update(1)  # Update the progress bar
-        train_loss_history.append(running_loss/ len(train_loader))    
+        train_loss_history.append(running_loss)    
+        log_registry['train_loss'] = running_loss
 
         # testing
         running_loss = 0.0    
@@ -59,7 +62,9 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
 
                 loss = criterion(logits, labels)  # Compute the loss
                 running_loss += loss.item()
-        test_loss_history.append(running_loss/ len(test_loader))
+        test_loss_history.append(running_loss)
+        log_registry['test_loss'] = running_loss
+        wandb.log(log_registry)
 
         epoch_sequence.append(epoch + 1)
 
@@ -78,13 +83,6 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
         if epoch > 1 and epoch % 3 == 0:
             # Save the model
             torch.save(model.state_dict(), f'./data/model-{epoch}.pth')
-    
-        if epoch > 1 and epoch % 10 == 0:
-            plt.cla()
-            plt.plot(epoch_sequence, train_loss_history, 'b-', label='train loss')
-            plt.plot(epoch_sequence, test_loss_history, 'r-', label='test loss')
-            plt.legend()
-            plt.savefig(f'./figs/loss_history-{epoch}.png')
 
     print('Training complete!')
     
@@ -103,6 +101,17 @@ if __name__ == "__main__":
     args = parser.parse_args()
     epochs = args.epochs 
     factor = args.factor
+
+    wandb.init(
+        project="shakespear-transformer",
+        config={
+            "learning_rate": learning_rate, 
+            "architecture": "Shakespear's transformer",
+            "dataset": "Shakespear",
+            "epochs": epochs,
+            "factor": factor
+        }
+    )
 
     print("Hello World!")
     print("CUDA available: ", torch.cuda.is_available())
