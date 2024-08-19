@@ -17,6 +17,23 @@ Lastly, thanks to [Andrej's project](https://github.com/karpathy/ng-video-lectur
     2. the training process as developers need to think about how to feed the previous output to the model without giving it the answer. 
 4. It worth building a data pipeline from the beginning, instead of thinking about each data processing step on demand. 
 
+Part of the generated samples:
+```
+QUEEN whom Gentleman
+     His of
+     All's.
+KING my V. short a the at. for. most and. DIANA
+     The cornets. day.
+****
+     of the the on. and An were.
+BRANDON
+     Read Exeunt ****
+     Of the hither. draw the the the
+requireth's.
+     Neighbour's : ****
+     Another repose, But the ****
+```
+
 ## Specifications 
 
 We have the following key parameters: 

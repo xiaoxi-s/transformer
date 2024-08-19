@@ -44,6 +44,8 @@ class MultiHeadAttention(nn.Module):
         self.dk = dmodel // num_heads
         self.dv = self.dk
 
+        # a variant of the original paper
+        # WQ, WK, WV are not head specific
         self.WQ = nn.Linear(dmodel, self.dk)
         self.WK = nn.Linear(dmodel, self.dk)
         self.WV = nn.Linear(dmodel, self.dv)
