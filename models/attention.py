@@ -4,17 +4,26 @@ import torch.nn as nn
 # dq, dk, dv, dmodel = 64, 64, 64, 512
 
 class Attention(nn.Module):
-    def __init__(self, dmodel=512, dk=64, mask=False):
+    def __init__(self, dmodel=512, dk=64, dv=64, mask=False):
         super(Attention, self).__init__()
         self.dmodel = dmodel 
         self.dk = dk
+        self.dv = dv
         self.mask = mask
     
+        self.WQ = nn.Linear(dmodel, self.dk)
+        self.WK = nn.Linear(dmodel, self.dk)
+        self.WV = nn.Linear(dmodel, self.dv)
+
     def forward(self, Q, K, V):
         # Q: (batch_size, seq_len, dq)
         # K: (batch_size, seq_len, dk)
         # V: (batch_size, seq_len, dv)
         # print(Q.shape, K.shape, V.shape)
+
+        Q = self.WQ(Q)
+        K = self.WK(K)
+        V = self.WV(V)
 
         output = Q @ K.mT / (self.dk**0.5)
         if self.mask:
@@ -40,17 +49,13 @@ class MultiHeadAttention(nn.Module):
         self.WV = nn.Linear(dmodel, self.dv)
 
         self.heads = nn.ModuleDict({
-            f'head_{i}': Attention(self.dmodel, self.dk, mask)
+            f'head_{i}': Attention(self.dmodel, self.dk, self.dv, mask)
             for i in range(self.num_heads)
         })
 
         self.linear = nn.Linear(self.num_heads * self.dv, self.dmodel)
 
     def forward(self, Q, K, V):
-        Q = self.WQ(Q)
-        K = self.WK(K)
-        V = self.WV(V)
-
         # print("heads output shape: ", self.heads['head_0'](Q, K, V).shape)
 
         output = torch.cat([head(Q, K, V) for head in self.heads.values()], dim=-1)
