@@ -29,7 +29,7 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
     for epoch in range(epochs):
         # training
         log_registry = {}
-        running_loss = 0.0
+        training_loss = 0.0
         with tqdm(total=len(train_loader), desc=f'Epoch {epoch + 1}/{epochs}', unit='batch') as pbar:
             model.train()
             for batch in train_loader:
@@ -44,13 +44,13 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
                 loss.backward()  # Backpropagation
                 optimizer.step()  # Update weights
 
-                running_loss += loss.item()
+                training_loss += (loss.item() * len(batch))
                 pbar.update(1)  # Update the progress bar
-        train_loss_history.append(running_loss)    
-        log_registry['train_loss'] = running_loss
+        train_loss_history.append(training_loss)
+        log_registry['train_loss'] = training_loss
 
         # testing
-        running_loss = 0.0    
+        test_loss = 0.0    
         with torch.no_grad():
             model.eval()
             for batch in test_loader:
@@ -61,9 +61,9 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
                 labels = labels.view(B * T)
 
                 loss = criterion(logits, labels)  # Compute the loss
-                running_loss += loss.item()
-        test_loss_history.append(running_loss)
-        log_registry['test_loss'] = running_loss
+                test_loss += (loss.item() * len(batch))
+        test_loss_history.append(test_loss / len(test_loader))
+        log_registry['test_loss'] = test_loss / len(test_loader)
         wandb.log(log_registry)
 
         epoch_sequence.append(epoch + 1)
