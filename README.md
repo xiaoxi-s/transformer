@@ -202,6 +202,8 @@ One of the future directions is to improve training efficiency using distributed
 
 <details>
 
+#### 8 A100 GPU cluster
+
 ```shell
 (transformer) ubuntu@207-211-161-88:~/transformer-with-shakespeare$ python3 main.py -e 2 -f 1 -q
 Disable wandb
@@ -222,5 +224,32 @@ Train dataset length:  1429033
 Test dataset length:  612442
 Epoch 1/2: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2792/2792 [17:11<00:00,  2.71batch/s]
 ```
+
+The time spent in the first epoch is ~17 minutes. 
+
+#### 1 A100 GPU
+
+```shell
+(transformer) ubuntu@129-146-98-70:~/transformer-with-shakespeare$ cat train.out
+Enable wandb
+Hello World!
+CUDA available:  True
+CUDA device count:  1
+Epochs:  77
+Data factor:  1.0
+Enable PyTorch Data parallelism
+17.199999 M parameters
+Token type number:  27743
+Loading data...
+Length of data:  2041475
+Shape of np data:  (2041475, 2, 128)
+Tensorizing data...
+data shape:  torch.Size([2041475, 2, 128])
+Train dataset length:  1429033
+Test dataset length:  612442
+Epoch 1/77:   6%|▌         | 677/11165 [01:28<22:43,  7.69batch/s]
+```
+
+The time per epoch is ~22 minutes. At least for the current architecture, parallel training does not improve training efficiency very much. 
 
 </details>
