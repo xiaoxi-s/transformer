@@ -3,6 +3,26 @@ import torch.nn as nn
 
 from .attention import AttentionLayer, FeedForwardLayer 
 
+class PositionalEncoding(nn.Module):
+    def __init__(self, block_size, dmodel):
+        super(PositionalEncoding, self).__init__()
+        self.block_size = block_size
+        self.dmodel = dmodel
+
+        encoding = torch.zeros(block_size, dmodel)
+        encoding.requires_grad = False
+
+        pos = torch.reshape(torch.arange(0, block_size), (block_size, 1))
+        _2i = torch.arange(0, dmodel, step=2)
+
+        encoding[:, 0::2] = torch.sin( pos / 10000**(_2i / dmodel) )
+        encoding[:, 1::2] = torch.cos( pos / 10000**(_2i / dmodel) )
+        self.encoding = encoding
+ 
+    def forward(self, x):
+        # x is a batch of sequences of integers of dim (batch_size, seq_len)
+        _, seq_len = x.size()
+        return self.encoding[0:seq_len, :]
 
 class Encoder(nn.Module):
     def __init__(self, block_size, dropout=0.1, dmodel=512, num_of_heads=8):
@@ -44,7 +64,7 @@ class Transformer(nn.Module):
         self.block_size = block_size
 
         self.embeddings = nn.Embedding(vocab_size, self.dmodel)
-        self.position_embedding_table = nn.Embedding(block_size, self.dmodel)
+        self.position_encoding = PositionalEncoding(block_size, self.dmodel)
 
         # hard coded dropout
         self.dropout_encoder_embedding = nn.Dropout(0.1)
@@ -73,15 +93,13 @@ class Transformer(nn.Module):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
     
     def forward(self, x, y):
-        # x: embeddings of input
-        # y: embeddings of previous output
-        # print(type(x))
-        # print(x.shape)
+        # x: tokenized input
+        # y: tokenized previous output
         x = x[:, -self.block_size:]
         y = y[:, -self.block_size:]
 
-        x = self.embeddings(x) + self.position_embedding_table(torch.arange(x.shape[1]))
-        y = self.embeddings(y) + self.position_embedding_table(torch.arange(y.shape[1]))
+        x = self.embeddings(x) + self.position_encoding(x)
+        y = self.embeddings(y) + self.position_encoding(y)
 
         x = self.dropout_encoder_embedding(x)
         y = self.dropout_pre_decoder_embedding(y)
