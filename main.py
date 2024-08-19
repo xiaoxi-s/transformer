@@ -136,7 +136,7 @@ if __name__ == "__main__":
     model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=1, num_of_encoder_layers=1, dmodel=dmodel)
     if args.parallel.lower() == "true" or args.parallel.lower() == "t":
         print("Enable PyTorch Data parallelism")
-        available_gpus = [torch.cuda.device(i) for i in range(torch.cuda.device_count())]
+        available_gpus = [i for i in range(torch.cuda.device_count())]
         model = nn.DataParallel(model, device_ids=available_gpus)
 
     print(sum(p.numel() for p in model.parameters())/1e6, 'M parameters')
