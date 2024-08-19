@@ -126,8 +126,8 @@ if __name__ == "__main__":
     print("Epochs: ", epochs)
     print("Data factor: ", args.factor)
     torch.manual_seed(7777)
-    # torch.set_default_device(device)
-    torch.set_default_tensor_type('torch.cuda.FloatTensor')
+    torch.set_default_device(device)
+    torch.set_default_dtype(torch.float64)
 
     vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
 
@@ -136,7 +136,6 @@ if __name__ == "__main__":
         print("Enable PyTorch Data parallelism")
         available_gpus = [torch.cuda.device(i) for i in range(torch.cuda.device_count())]
         model = nn.DataParallel(model, device_ids=available_gpus)
-        torch.set_default_device(device)
 
     print(sum(p.numel() for p in model.parameters())/1e6, 'M parameters')
     print("Token type number: ", len(vocab_to_ind))
