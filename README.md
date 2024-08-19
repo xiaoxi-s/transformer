@@ -173,9 +173,12 @@ raisinsraisinsraisinsAdvocateAdvocateraisinsraisinsraisinsraisinsraisins raisins
 
 ### Environment setup
 
-1. Run `conda env create -f requirements.yml`, which will create an environment called `transformer`
-2. Activate the environment with `conda activate transformer`
-3. Install wandb manually with conda `conda install conda-forge::wandbconda` as wandb isn't readily available in any conda's channel now. 
+1. Clone this repo using `git clone --recursive https://github.com/xiaoxi-s/transformer-with-shakespeare.git`
+2. Run `conda env create -f requirements.yml`, which will create an environment called `transformer`
+3. Activate the environment with `conda activate transformer`
+4. Install wandb manually with conda `conda install conda-forge::wandbconda` as wandb isn't readily available in any conda's channel now. 
+
+Note: If you didn't supplement the `--recursive` flag in the clone command, you can run `git submodule update --init --recursive` to download the submodule explicitly. 
 
 ### Training
 
