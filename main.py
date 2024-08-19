@@ -97,21 +97,28 @@ if __name__ == "__main__":
     parser.add_argument('-e', '--epochs', default=20, type=int)           # positional argument
     parser.add_argument('-f', '--factor', default=0.0001, type=float)      # option that takes a value
     parser.add_argument('-p', '--parallel', default="true", type=str)      # option that takes a value
+    parser.add_argument('-q', '--quiet-wandb', action="store_false")
 
     args = parser.parse_args()
     epochs = args.epochs 
     factor = args.factor
+    quiet_wandb = args.quiet_wandb
 
-    wandb.init(
-        project="shakespear-transformer",
-        config={
-            "learning_rate": learning_rate, 
-            "architecture": "Shakespear's transformer",
-            "dataset": "Shakespear",
-            "epochs": epochs,
-            "factor": factor
-        }
-    )
+    if quiet_wandb:
+        print("Enable wandb")
+        wandb.init(
+            project="shakespear-transformer",
+            config={
+                "learning_rate": learning_rate, 
+                "architecture": "Shakespear's transformer",
+                "dataset": "Shakespear",
+                "epochs": epochs,
+                "factor": factor
+            }
+        )
+    else:
+        print("Disable wandb")
+        wandb.init(mode="disabled")
 
     print("Hello World!")
     print("CUDA available: ", torch.cuda.is_available())
