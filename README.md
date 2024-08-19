@@ -198,7 +198,7 @@ Run `python build_vocab.py` under `./data` folder to regenerate the maps
 
 ## Distributed/parallel training
 
-One of the future directions is to improve training efficiency using distributed/parallel training. However, the network architecture limits how much parallel training can help. One epoch with 1024 batch size using `gpu_8x_a100_80gb_sxm4` on Lambda Cloud will take ~17 minutes. See the following detail section for the output.
+One of the future directions is to improve training efficiency using distributed/parallel training. However, the network architecture limits how much parallel training can help. One epoch with 512 batch size using `gpu_8x_a100_80gb_sxm4` on Lambda Cloud will take ~17 minutes. See the following detail section for the output. Increasing the batch size to 1024 will result in CUDA out-of-memory error. 
 
 <details>
 
