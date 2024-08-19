@@ -8,7 +8,7 @@ from os.path import isfile, join
 from collections import defaultdict
 
 from matplotlib import pyplot as plt
-from utils import read_corpus, get_char_type
+from vocab_utils import read_corpus, get_char_type
 
 path_to_plays = '../shakespeare/shakespeare-db/'
 
