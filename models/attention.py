@@ -44,8 +44,6 @@ class MultiHeadAttention(nn.Module):
         self.dk = dmodel // num_heads
         self.dv = self.dk
 
-        # a variant of the original paper
-        # WQ, WK, WV are not head specific
         self.WQ = nn.Linear(dmodel, self.dk)
         self.WK = nn.Linear(dmodel, self.dk)
         self.WV = nn.Linear(dmodel, self.dv)
@@ -58,11 +56,8 @@ class MultiHeadAttention(nn.Module):
         self.linear = nn.Linear(self.num_heads * self.dv, self.dmodel)
 
     def forward(self, Q, K, V):
-        # print("heads output shape: ", self.heads['head_0'](Q, K, V).shape)
-
         output = torch.cat([head(Q, K, V) for head in self.heads.values()], dim=-1)
         output = self.linear(output)
-
         return output 
 
 
