@@ -46,8 +46,8 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
 
                 training_loss += (loss.item() * len(batch))
                 pbar.update(1)  # Update the progress bar
-        train_loss_history.append(training_loss / len(train_loader))
-        log_registry['train_loss'] = training_loss / len(train_loader)
+        train_loss_history.append(training_loss / len(train_loader.dataset))
+        log_registry['train_loss'] = training_loss / len(train_loader.dataset)
 
         # testing
         test_loss = 0.0    
@@ -62,8 +62,8 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
 
                 loss = criterion(logits, labels)  # Compute the loss
                 test_loss += (loss.item() * len(batch))
-        test_loss_history.append(test_loss / len(test_loader))
-        log_registry['test_loss'] = test_loss / len(test_loader)
+        test_loss_history.append(test_loss / len(test_loader.dataset))
+        log_registry['test_loss'] = test_loss / len(test_loader.dataset)
         wandb.log(log_registry)
 
         epoch_sequence.append(epoch + 1)
