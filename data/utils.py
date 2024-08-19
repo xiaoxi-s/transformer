@@ -88,7 +88,7 @@ def pickle_data(data, file_name, picked_data_path='./data/'):
         pickle.dump(data, outfile)
 
 
-def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/', data_path='./data/data.npz'):
+def load_all_data(vocab_to_ind, factor, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/', data_path='./data/data.npz'):
     plays = [join(shakespeare_path, f) for f in listdir(shakespeare_path) if isfile(join(shakespeare_path, f))]
     block_size = block_size
     data = []
@@ -109,23 +109,24 @@ def load_all_data(vocab_to_ind, block_size=8, shakespeare_path='./shakespeare/sh
     else:
         data = np.load('./data/data.npz', allow_pickle=True)['arr_0']
     
+    print("Length of data: ", len(data))
+    end_of_selected_data = int(len(data) * factor)
+    print("Shape of np data: ", data.shape)
     print("Tensorizing data...")
-    data = torch.from_numpy(data).long()
+    data = torch.from_numpy(data)[0:end_of_selected_data].long()
     print("data shape: ", data.shape)
     
     return data
 
 
-def get_train_and_test_dataset(vocab_to_ind, train_dataset_start, train_dataset_end, test_dataset_start, test_dataset_end, device='cpu', block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
+def get_train_and_test_dataset(vocab_to_ind, factor, device='cpu', block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
     """Get the training and testing dataset."""
     print("Loading data...")
-    data = load_all_data(vocab_to_ind, block_size, shakespeare_path)
+    data = load_all_data(vocab_to_ind, factor, block_size, shakespeare_path)
 
-    train_data = data[train_dataset_start:train_dataset_end, :]
-    test_data = data[test_dataset_start:test_dataset_end, :]
-    
-    train_dataset = BabyShakespeareDataset(train_data, device)
-    test_dataset = BabyShakespeareDataset(test_data, device)
+    dataset = BabyShakespeareDataset(data, device)
+
+    train_dataset, test_dataset = torch.utils.data.random_split(dataset, [0.7, 0.3], torch.Generator(device))
     
     return train_dataset, test_dataset
 
