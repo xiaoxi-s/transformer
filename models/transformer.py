@@ -30,7 +30,7 @@ class Encoder(nn.Module):
         self.dmodel = dmodel 
         self.block_size = block_size
     
-        self.encoder_sa = AttentionLayer(self.dmodel, num_of_heads, False, attention_dropout=dropout)
+        self.encoder_sa = AttentionLayer(self.block_size, self.dmodel, num_of_heads, False, attention_dropout=dropout)
 
         self.encoder_ffwd = FeedForwardLayer(self.dmodel, dropout=dropout) 
 
@@ -45,9 +45,9 @@ class Decoder(nn.Module):
         self.dmodel = dmodel 
         self.block_size = block_size
     
-        self.decoder_sa = AttentionLayer(self.dmodel, num_of_heads, True, attention_dropout=dropout)
+        self.decoder_sa = AttentionLayer(self.block_size, self.dmodel, num_of_heads, True, attention_dropout=dropout)
 
-        self.decoder_ca = AttentionLayer(self.dmodel, num_of_heads, False, attention_dropout=dropout)
+        self.decoder_ca = AttentionLayer(self.block_size, self.dmodel, num_of_heads, False, attention_dropout=dropout)
 
         self.decoder_ffwd = FeedForwardLayer(self.dmodel, dropout=dropout)
     

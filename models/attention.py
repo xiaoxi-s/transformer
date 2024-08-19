@@ -4,52 +4,55 @@ import torch.nn as nn
 # dq, dk, dv, dmodel = 64, 64, 64, 512
 
 class Attention(nn.Module):
-    def __init__(self, dmodel=512, dk=64, dv=64, mask=False):
+    def __init__(self, block_size, dmodel=512, dk=64, dv=64, mask=False):
         super(Attention, self).__init__()
         self.dmodel = dmodel 
         self.dk = dk
         self.dv = dv
         self.mask = mask
+        self.block_size = block_size
     
         self.WQ = nn.Linear(dmodel, self.dk)
         self.WK = nn.Linear(dmodel, self.dk)
         self.WV = nn.Linear(dmodel, self.dv)
+        if mask:
+            self.mask = torch.triu(torch.ones((self.block_size, self.block_size)), diagonal=1)
+            self.mask.masked_fill_(self.mask==1, float('-inf'))
+        else:
+            self.mask = torch.zeros((self.block_size, self.block_size))
 
-    def forward(self, Q, K, V):
+    def forward(self, XQ, XK, XV):
         # Q: (batch_size, seq_len, dq)
         # K: (batch_size, seq_len, dk)
         # V: (batch_size, seq_len, dv)
         # print(Q.shape, K.shape, V.shape)
 
-        Q = self.WQ(Q)
-        K = self.WK(K)
-        V = self.WV(V)
-
+        Q = self.WQ(XQ)
+        K = self.WK(XK)
+        V = self.WV(XV)
+        _, seq_len, _ = Q.size()
+    
         output = Q @ K.mT / (self.dk**0.5)
-        if self.mask:
-            mask = torch.triu(torch.ones(output.shape), diagonal=1)
-            mask.masked_fill_(mask==1, float('-inf'))
-        else:
-            mask = torch.zeros(output.shape)
 
-        output = torch.softmax((output + mask), dim=-1)
+        output = torch.softmax((output + self.mask[:seq_len, :seq_len]), dim=-1)
         return output @ V
 
 
 class MultiHeadAttention(nn.Module):
-    def __init__(self, dmodel, num_heads, mask=False):
+    def __init__(self, block_size, dmodel, num_heads, mask=False):
         super(MultiHeadAttention, self).__init__()
         self.dmodel = dmodel 
         self.num_heads = num_heads
         self.dk = dmodel // num_heads
         self.dv = self.dk
+        self.block_size = block_size
 
         self.WQ = nn.Linear(dmodel, self.dk)
         self.WK = nn.Linear(dmodel, self.dk)
         self.WV = nn.Linear(dmodel, self.dv)
 
         self.heads = nn.ModuleDict({
-            f'head_{i}': Attention(self.dmodel, self.dk, self.dv, mask)
+            f'head_{i}': Attention(self.block_size, self.dmodel, self.dk, self.dv, mask)
             for i in range(self.num_heads)
         })
 
@@ -62,13 +65,14 @@ class MultiHeadAttention(nn.Module):
 
 
 class AttentionLayer(nn.Module):
-    def __init__(self, dmodel, num_heads, mask=False, attention_dropout=0.1):
+    def __init__(self, block_size, dmodel, num_heads, mask=False, attention_dropout=0.1):
         super(AttentionLayer, self).__init__()
-        self.dmodel = dmodel 
+        self.block_size = block_size
+        self.dmodel = dmodel
         self.num_heads = num_heads
         self.mask = mask
 
-        self.attention = MultiHeadAttention(self.dmodel, self.num_heads, self.mask)
+        self.attention = MultiHeadAttention(self.block_size, self.dmodel, self.num_heads, self.mask)
         self.layer_norm = nn.LayerNorm(self.dmodel)
         self.dropout_1 = nn.Dropout(attention_dropout)
 
