@@ -46,8 +46,8 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
 
                 training_loss += (loss.item() * len(batch))
                 pbar.update(1)  # Update the progress bar
-        train_loss_history.append(training_loss)
-        log_registry['train_loss'] = training_loss
+        train_loss_history.append(training_loss / len(train_loader))
+        log_registry['train_loss'] = training_loss / len(train_loader)
 
         # testing
         test_loss = 0.0    
