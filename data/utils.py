@@ -129,10 +129,29 @@ def load_dataset(vocab_to_ind, factor, tokenizer, block_size=8, shakespeare_path
     return data
 
 
-def get_train_and_test_dataset(vocab_to_ind, factor, tokenizer, device='cpu', block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
+def load_pre_processed_data(vocab_to_ind, factor, tokenizer, block_size=8, pre_processed_dataset_path='./input.txt'):
+    # wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
+    with open(pre_processed_dataset_path, 'r', encoding='utf-8') as f:
+        text = f.read()
+
+    tokenized_text = []
+    for c in text:
+        tokenized_text.append(vocab_to_ind[c])
+    data = generate_dataset_from_tokens(tokenized_text, block_size)
+
+    # Train and test splits
+    end_of_selected_data = int(len(data) * factor)
+    data = torch.tensor(data, dtype=torch.long)[0:end_of_selected_data]
+    return data
+
+
+def get_train_and_test_dataset(vocab_to_ind, dataset, factor, tokenizer, device='cpu', block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
     """Get the training and testing dataset."""
     print("Loading data...")
-    data = load_dataset(vocab_to_ind, factor, tokenizer, block_size, shakespeare_path)
+    if dataset == 'default':
+        data = load_dataset(vocab_to_ind, factor, tokenizer, block_size, shakespeare_path)
+    else:
+        data = load_pre_processed_data(vocab_to_ind, factor, tokenizer, block_size) 
     dataset = BabyShakespeareDataset(data, device)
     train_dataset, test_dataset, finetune_dataset, validation_dataset = torch.utils.data.random_split(dataset, [0.7, 0.1498, 0.0004, 0.1498], torch.Generator(device))
     return train_dataset, test_dataset, finetune_dataset, validation_dataset

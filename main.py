@@ -1,5 +1,6 @@
 import argparse
 import wandb
+import pickle
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -24,17 +25,37 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--parallel', default="true", type=str)      # option that takes a value
     parser.add_argument('-q', '--quiet-wandb', action="store_false")
     parser.add_argument('-t', '--tokenizer', default='char', type=str)
+    parser.add_argument('-d', '--dataset', default='default', type=str)
 
     args = parser.parse_args()
     epochs = args.epochs 
     factor = args.factor
     quiet_wandb = args.quiet_wandb
     tokenizer = args.tokenizer
+    dataset = args.dataset
 
     print("Tokenizer: ")
-    if tokenizer.lower() == 'char':
+    if tokenizer.lower() == 'char' and dataset == 'default':
         print("  Using char tokenizer")
         vocab_to_ind = load_pickled_data('char_vocab_to_ind.pkl') 
+    elif tokenizer.lower() == 'char' and dataset != 'default':
+        from os.path import isfile, join
+        if not isfile('../data/pre_vocab_to_ind.pkl'):
+            with open('./input.txt', 'r', encoding='utf-8') as f:
+                text = f.read()
+            chars = sorted(list(set(text)))
+            vocab_to_ind = { ch:i for i,ch in enumerate(chars) }
+            ind_to_vocab = { i:ch for i,ch in enumerate(chars) }
+            with open('./data/pre_vocab_to_ind.pkl', 'wb') as outfile:
+                pickle.dump(vocab_to_ind, outfile)
+            with open('./data/ind_to_pre_vocab.pkl', 'wb') as outfile:
+                pickle.dump(ind_to_vocab, outfile)
+        else:
+            vocab_to_ind = load_pickled_data('pre_vocab_to_ind.pkl') 
+            ind_to_vocab = load_pickled_data('ind_to_pre_vocab.pkl') 
+
+        encode = lambda s: [vocab_to_ind[c] for c in s] # encoder: take a string, output a list of integers
+        decode = lambda l: ''.join([ind_to_vocab[i] for i in l]) # decoder: take a list of integers, output a string
     elif tokenizer.lower() == 'word':
         print("  Using word tokenizer")
         vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
@@ -86,7 +107,7 @@ if __name__ == "__main__":
     print(f"  Number of decoder: {num_of_decoder_layers} - Number of encoder: {num_of_decoder_layers}")
     print("  Total num of model params: ", sum(p.numel() for p in model.parameters())/1e6, 'M parameters')
 
-    train_dataset, test_dataset, finetune_dataset, validation_dataset = get_train_and_test_dataset(vocab_to_ind, factor=factor, device=device, block_size=block_size, tokenizer=tokenizer)
+    train_dataset, test_dataset, finetune_dataset, validation_dataset = get_train_and_test_dataset(vocab_to_ind, dataset=dataset, factor=factor, device=device, block_size=block_size, tokenizer=tokenizer)
 
     print("Data spec")
     print("  Data factor (proportion of all Shakespeare's plays): ", args.factor)
