@@ -6,7 +6,7 @@ from tqdm import tqdm
 from hyperparams import *
 
 
-def train(model, tokenizer, train_loader, test_loader, criterion, optimizer, epochs=1):
+def train(model, tokenizer, dataset, train_loader, test_loader, criterion, optimizer, epochs=1):
     # Define loss function and optimizer
     # Training loop
     train_loss_history = []
@@ -62,7 +62,7 @@ def train(model, tokenizer, train_loader, test_loader, criterion, optimizer, epo
 
         if epoch > 1 and epoch % 3 == 0:
             # Save the model
-            torch.save(model.state_dict(), f'./data/model-{epoch}-{tokenizer}.pth')
+            torch.save(model.state_dict(), f'./data/model-on-{dataset}-with-{epoch}-{tokenizer}.pth')
 
     print('Training complete!')
     
