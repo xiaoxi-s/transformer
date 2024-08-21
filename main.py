@@ -72,8 +72,8 @@ if __name__ == "__main__":
     print("Finetune dataset length: ", len(finetune_dataset))
     print("Validation dataset length: ", len(validation_dataset))
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, generator=torch.Generator(device=device))
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, generator=torch.Generator(device=device))
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=finetune_batch_size, shuffle=True, generator=torch.Generator(device=device))
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=finetune_batch_size, shuffle=True, generator=torch.Generator(device=device))
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)

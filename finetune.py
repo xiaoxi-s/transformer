@@ -21,7 +21,6 @@ def finetune(model, finetune_dataset, criterion, optimizer, finetune_block_size,
         with tqdm(total=len(finetune_dataset), desc=f'Epoch {epoch + 1}/{epochs}', unit='batch') as pbar:
             model.train()
             for batch in finetune_dataset:
-                print("hello!!", batch.size() )
                 inputs, labels = batch[:, 0, 0:finetune_block_size].contiguous(), batch[:, 1, 0:finetune_block_size].contiguous()
                 inputs, labels = inputs.to(device), labels.to(device)
                 optimizer.zero_grad()  # Zero the gradients
@@ -87,6 +86,7 @@ if __name__ == "__main__":
     torch.set_default_device(device)
     print("Vocab size: ", len(vocab_to_ind))
     _, _, finetune_dataset, _ = get_train_and_test_dataset(vocab_to_ind, factor=factor, device=device, block_size=block_size)
+    print("Finetune dataset size: ", len(finetune_dataset))
     finetune_loader = torch.utils.data.DataLoader(finetune_dataset, batch_size=batch_size, shuffle=True, generator=torch.Generator(device=device))
 
     model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=1, num_of_encoder_layers=1, dmodel=dmodel).to(device) 
