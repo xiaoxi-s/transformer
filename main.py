@@ -65,10 +65,12 @@ if __name__ == "__main__":
     print(sum(p.numel() for p in model.parameters())/1e6, 'M parameters')
     print("Token type number: ", len(vocab_to_ind))
 
-    train_dataset, test_dataset = get_train_and_test_dataset(vocab_to_ind, factor=factor, device=device, block_size=block_size)
+    train_dataset, test_dataset, finetune_dataset, validation_dataset = get_train_and_test_dataset(vocab_to_ind, factor=factor, device=device, block_size=block_size)
 
     print("Train dataset length: ", len(train_dataset))
     print("Test dataset length: ", len(test_dataset))
+    print("Finetune dataset length: ", len(finetune_dataset))
+    print("Validation dataset length: ", len(validation_dataset))
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, generator=torch.Generator(device=device))
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, generator=torch.Generator(device=device))

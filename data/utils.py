@@ -122,12 +122,9 @@ def get_train_and_test_dataset(vocab_to_ind, factor, device='cpu', block_size=8,
     """Get the training and testing dataset."""
     print("Loading data...")
     data = load_all_data(vocab_to_ind, factor, block_size, shakespeare_path)
-
     dataset = BabyShakespeareDataset(data, device)
-
-    train_dataset, test_dataset = torch.utils.data.random_split(dataset, [0.7, 0.3], torch.Generator(device))
-    
-    return train_dataset, test_dataset
+    train_dataset, test_dataset, finetune_dataset, validation_dataset = torch.utils.data.random_split(dataset, [0.7, 0.1498, 0.0004, 0.1498], torch.Generator(device))
+    return train_dataset, test_dataset, finetune_dataset, validation_dataset
 
 def generate_contents(model, vocab_to_ind, ind_to_vocab, device='cpu', max_num_of_tokens=1000):
     """Generate contents from the model."""
