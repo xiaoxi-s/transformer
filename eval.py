@@ -3,12 +3,15 @@ import argparse
 import torch
 import torch.nn as nn
 
+import numpy as np
+
 from data.utils import load_pickled_data, get_train_and_test_dataset, generate_contents
 from models.transformer import Transformer
 from hyperparams import *
 
 
 if __name__ == "__main__":
+    np.random.seed(7777)
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-e', '--epoch', type=int, default=150)
     argparser.add_argument('-p', '--parallel', default="true", type=str)      # option that takes a value
