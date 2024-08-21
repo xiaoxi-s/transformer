@@ -42,5 +42,5 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load(f'data/{model_name}'), strict=False)
     model.eval()
 
-    generate_contents(model, vocab_to_ind, ind_to_vocab=ind_to_vocab, device=device, max_num_of_tokens=max_token)
+    generate_contents(model, vocab_to_ind, ind_to_vocab=ind_to_vocab, tokenizer=tokenizer, device=device, max_num_of_tokens=max_token)
     
