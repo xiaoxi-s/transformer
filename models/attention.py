@@ -9,17 +9,18 @@ class Attention(nn.Module):
         self.dmodel = dmodel 
         self.dk = dk
         self.dv = dv
-        self.mask = mask
         self.block_size = block_size
     
         self.WQ = nn.Linear(dmodel, self.dk)
         self.WK = nn.Linear(dmodel, self.dk)
         self.WV = nn.Linear(dmodel, self.dv)
         if mask:
-            self.mask = torch.triu(torch.ones((self.block_size, self.block_size)), diagonal=1)
-            self.mask.masked_fill_(self.mask==1, float('-inf'))
+            m = torch.triu(torch.ones((self.block_size, self.block_size)), diagonal=1)
+            m.masked_fill_(m==1, float('-inf'))
+            self.register_buffer('mask', m)
         else:
-            self.mask = torch.zeros((self.block_size, self.block_size))
+            m = torch.zeros((self.block_size, self.block_size))
+            self.register_buffer('mask', m)
         
         self.mask.requires_grad = False
 
