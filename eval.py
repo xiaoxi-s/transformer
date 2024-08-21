@@ -47,7 +47,7 @@ if __name__ == "__main__":
     if parser.parallel.lower() == "true" or parser.parallel.lower() == "t":
         model = nn.DataParallel(model) 
 
-    model.load_state_dict(torch.load(f'data/{model_name}'), strict=False)
+    model.load_state_dict(torch.load(f'data/{model_name}'))
     model.eval()
 
     generate_contents(model, vocab_to_ind, ind_to_vocab=ind_to_vocab, tokenizer=tokenizer, device=device, max_num_of_tokens=max_token)
