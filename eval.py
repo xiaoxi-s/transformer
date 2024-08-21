@@ -30,6 +30,8 @@ if __name__ == "__main__":
         vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
         ind_to_vocab = load_pickled_data('ind_to_vocab.pkl')
     if tokenizer == 'word' and dataset != 'default':
+        vocab_to_ind = load_pickled_data('pre_vocab_to_ind.pkl')
+        ind_to_vocab = load_pickled_data('ind_to_pre_vocab.pkl')
     elif tokenizer == 'char':
         vocab_to_ind = load_pickled_data('char_vocab_to_ind.pkl') 
         ind_to_vocab = load_pickled_data('ind_to_vocab_char.pkl')
