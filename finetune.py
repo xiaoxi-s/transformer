@@ -97,4 +97,4 @@ if __name__ == "__main__":
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=finetune_learning_rate)
-    finetune(model, test_loader, criterion, optimizer, finetune_block_size, name_of_finetune_model, finetune_epoch)
+    finetune(model, finetune_loader, criterion, optimizer, finetune_block_size, name_of_finetune_model, finetune_epoch)
