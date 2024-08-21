@@ -138,7 +138,7 @@ def get_train_and_test_dataset(vocab_to_ind, factor, tokenizer, device='cpu', bl
     return train_dataset, test_dataset, finetune_dataset, validation_dataset
 
 
-def generate_contents(model, vocab_to_ind, ind_to_vocab, device='cpu', max_num_of_tokens=1000):
+def generate_contents(model, vocab_to_ind, ind_to_vocab, tokenizer, device='cpu', max_num_of_tokens=1000):
     """Generate contents from the model."""
 
     output = None
@@ -154,6 +154,6 @@ def generate_contents(model, vocab_to_ind, ind_to_vocab, device='cpu', max_num_o
             output = torch.softmax(output, dim=-1) #[1, vocab_size]
             output = torch.multinomial(output, num_samples=1)
             token_indx.append(output.item())
-            if output.item() == vocab_to_ind['<stop>']:
+            if tokenizer == 'word'and output.item() == vocab_to_ind['<stop>']:
                 break
             print(ind_to_vocab[output.item()], end='')
