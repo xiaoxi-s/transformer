@@ -66,7 +66,7 @@ if __name__ == "__main__":
     torch.set_default_device(device)
     torch.set_default_dtype(torch.float64)
 
-    model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=1, num_of_encoder_layers=1, dmodel=dmodel)
+    model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=6, num_of_encoder_layers=6, dmodel=dmodel)
     if args.parallel.lower() == "true" or args.parallel.lower() == "t":
         print("Enable PyTorch Data parallelism")
         available_gpus = [i for i in range(torch.cuda.device_count())]

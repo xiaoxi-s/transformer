@@ -60,7 +60,7 @@ def train(model, tokenizer, train_loader, test_loader, criterion, optimizer, epo
         if epoch > 1:
             print(f'Epoch {epoch + 1}/{epochs}: train loss {train_loss_history[-1]}, test loss {test_loss_history[-1]}')
 
-        if epoch > 1 and epoch % 100 == 0:
+        if epoch > 1 and epoch % 3 == 0:
             # Save the model
             torch.save(model.state_dict(), f'./data/model-{epoch}-{tokenizer}.pth')
 
