@@ -16,13 +16,21 @@ if __name__ == "__main__":
     argparser.add_argument('-name', '--model-name', type=str)
     argparser.add_argument('-m', '--max-token', type=int, default=1000)
     argparser.add_argument('-p', '--parallel', default="true", type=str)      # option that takes a value
+    argparser.add_argument('-t', '--tokenizer', default='char', type=str)
 
     parser = argparser.parse_args()
     model_name = parser.model_name
     max_token = parser.max_token
+    tokenizer = parser.tokenizer
     print("Loading vocab ...")
-    vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
-    ind_to_vocab = load_pickled_data('ind_to_vocab.pkl')
+    if tokenizer == 'word':
+        vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
+        ind_to_vocab = load_pickled_data('ind_to_vocab.pkl')
+    elif tokenizer == 'char':
+        vocab_to_ind = load_pickled_data('char_vocab_to_ind.pkl') 
+        ind_to_vocab = load_pickled_data('ind_to_vocab_char.pkl')
+    else:
+        raise ValueError("Invalid tokenizer. Can only be char or word.")
     print("Done loading vocab ...")
     torch.set_default_device(device)
     print("Vocab size: ", len(vocab_to_ind))
