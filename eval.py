@@ -13,12 +13,12 @@ from hyperparams import *
 if __name__ == "__main__":
     np.random.seed(7777)
     argparser = argparse.ArgumentParser()
-    argparser.add_argument('-e', '--epoch', type=int, default=150)
+    argparser.add_argument('-name', '--model-name', type=str)
     argparser.add_argument('-m', '--max-token', type=int, default=1000)
     argparser.add_argument('-p', '--parallel', default="true", type=str)      # option that takes a value
 
     parser = argparser.parse_args()
-    epoch = parser.epoch
+    model_name = parser.model_name
     max_token = parser.max_token
     print("Loading vocab ...")
     vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     if parser.parallel.lower() == "true" or parser.parallel.lower() == "t":
         model = nn.DataParallel(Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=1, num_of_encoder_layers=1, dmodel=dmodel).to(device)) 
 
-    model.load_state_dict(torch.load(f'data/model-{epoch}.pth'))
+    model.load_state_dict(torch.load(f'data/{model_name}'))
     model.eval()
 
     generate_contents(model, vocab_to_ind, ind_to_vocab=ind_to_vocab, device=device, max_num_of_tokens=max_token)
