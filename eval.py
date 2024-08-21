@@ -26,18 +26,18 @@ if __name__ == "__main__":
     dataset = parser.dataset
 
     print("Loading vocab ...")
-    if tokenizer == 'word' and dataset == 'default':
-        print("Loading the char tokenizer for raw Shakespeare")
-        vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
-        ind_to_vocab = load_pickled_data('ind_to_vocab.pkl')
-    elif tokenizer == 'word' and dataset == 'preprocessed':
-        print("Loading the char tokenizer for preprocessed Shakespeare")
-        vocab_to_ind = load_pickled_data('pre_vocab_to_ind.pkl')
-        ind_to_vocab = load_pickled_data('ind_to_pre_vocab.pkl')
-    elif tokenizer == 'char':
+    if tokenizer == 'char' and dataset == 'default':
         print("Loading the word tokenizer for raw Shakespeare")
         vocab_to_ind = load_pickled_data('char_vocab_to_ind.pkl') 
         ind_to_vocab = load_pickled_data('ind_to_vocab_char.pkl')
+    elif tokenizer == 'char' and dataset == 'preprocessed':
+        print("Loading the char tokenizer for preprocessed Shakespeare")
+        vocab_to_ind = load_pickled_data('pre_vocab_to_ind.pkl')
+        ind_to_vocab = load_pickled_data('ind_to_pre_vocab.pkl')
+    elif tokenizer == 'word':
+        print("Loading the char tokenizer for raw Shakespeare")
+        vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
+        ind_to_vocab = load_pickled_data('ind_to_vocab.pkl')
     else:
         raise ValueError("Invalid tokenizer. Can only be char or word.")
     torch.set_default_device(device)
