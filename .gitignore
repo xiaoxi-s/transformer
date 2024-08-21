@@ -1,6 +1,9 @@
 # Project specific ignores
 data/data.npz
 data/char_data.npz
+data/ind_to_pre_vocab.pkl
+data/pre_vocab_to_ind.pkl
+input.txt
 wandb/
 
 # Byte-compiled / optimized / DLL files
