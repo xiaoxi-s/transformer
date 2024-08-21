@@ -27,23 +27,25 @@ if __name__ == "__main__":
 
     print("Loading vocab ...")
     if tokenizer == 'word' and dataset == 'default':
+        print("Loading the char tokenizer for raw Shakespeare")
         vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
         ind_to_vocab = load_pickled_data('ind_to_vocab.pkl')
-    if tokenizer == 'word' and dataset != 'default':
+    elif tokenizer == 'word' and dataset == 'preprocessed':
+        print("Loading the char tokenizer for preprocessed Shakespeare")
         vocab_to_ind = load_pickled_data('pre_vocab_to_ind.pkl')
         ind_to_vocab = load_pickled_data('ind_to_pre_vocab.pkl')
     elif tokenizer == 'char':
+        print("Loading the word tokenizer for raw Shakespeare")
         vocab_to_ind = load_pickled_data('char_vocab_to_ind.pkl') 
         ind_to_vocab = load_pickled_data('ind_to_vocab_char.pkl')
     else:
         raise ValueError("Invalid tokenizer. Can only be char or word.")
-    print("Done loading vocab ...")
     torch.set_default_device(device)
     print("Vocab size: ", len(vocab_to_ind))
 
-    model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=1, num_of_encoder_layers=1, dmodel=dmodel).to(device) 
+    model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=4, num_of_encoder_layers=4, dmodel=dmodel).to(device) 
     if parser.parallel.lower() == "true" or parser.parallel.lower() == "t":
-        model = nn.DataParallel(Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=1, num_of_encoder_layers=1, dmodel=dmodel).to(device)) 
+        model = nn.DataParallel(model) 
 
     model.load_state_dict(torch.load(f'data/{model_name}'), strict=False)
     model.eval()

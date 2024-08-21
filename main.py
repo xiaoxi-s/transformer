@@ -38,7 +38,7 @@ if __name__ == "__main__":
     if tokenizer.lower() == 'char' and dataset == 'default':
         print("  Using char tokenizer")
         vocab_to_ind = load_pickled_data('char_vocab_to_ind.pkl') 
-    elif tokenizer.lower() == 'char' and dataset != 'default':
+    elif tokenizer.lower() == 'char' and dataset == 'preprocessed':
         from os.path import isfile, join
         if not isfile('../data/pre_vocab_to_ind.pkl'):
             with open('./input.txt', 'r', encoding='utf-8') as f:
