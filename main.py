@@ -31,11 +31,12 @@ if __name__ == "__main__":
     quiet_wandb = args.quiet_wandb
     tokenizer = args.tokenizer
 
+    print("Tokenizer: ")
     if tokenizer.lower() == 'char':
-        print("Using char tokenizer")
+        print("  Using char tokenizer")
         vocab_to_ind = load_pickled_data('char_vocab_to_ind.pkl') 
     elif tokenizer.lower() == 'word':
-        print("Using word tokenizer")
+        print("  Using word tokenizer")
         vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
     else:
         raise ValueError("Invalid tokenizer. Can only be char or word.")
@@ -57,30 +58,43 @@ if __name__ == "__main__":
         print("Disable wandb")
         wandb.init(mode="disabled")
 
-    print("Hello World!")
-    print("CUDA available: ", torch.cuda.is_available())
-    print("CUDA device count: ", torch.cuda.device_count())
-    print("Epochs: ", epochs)
-    print("Data factor: ", args.factor)
+    print("CUDA setup")
+    print("  CUDA available: ", torch.cuda.is_available())
+    print("  CUDA device count: ", torch.cuda.device_count())
+ 
+    print("Training spec")
+    print("  Epochs: ", epochs)
+    print("  Learning rate: ", learning_rate)
+    print("  Batch size: ", batch_size)
+    print("  Drop out: ", dropout)
+
     torch.manual_seed(7777)
     torch.set_default_device(device)
     torch.set_default_dtype(torch.float64)
 
+    num_of_decoder_layers=4
+    num_of_encoder_layers=4
     model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=4, num_of_encoder_layers=4, dmodel=dmodel)
     if args.parallel.lower() == "true" or args.parallel.lower() == "t":
         print("Enable PyTorch Data parallelism")
         available_gpus = [i for i in range(torch.cuda.device_count())]
         model = nn.DataParallel(model, device_ids=available_gpus)
 
-    print(sum(p.numel() for p in model.parameters())/1e6, 'M parameters')
-    print("Token type number: ", len(vocab_to_ind))
+    print("Transformer spec")
+    print("  Embedding dim: ", dmodel)
+    print("  Max context length: ", block_size)
+    print(f"  Number of decoder: {num_of_decoder_layers} - Number of encoder: {num_of_decoder_layers}")
+    print("  Total num of model params: ", sum(p.numel() for p in model.parameters())/1e6, 'M parameters')
 
     train_dataset, test_dataset, finetune_dataset, validation_dataset = get_train_and_test_dataset(vocab_to_ind, factor=factor, device=device, block_size=block_size, tokenizer=tokenizer)
 
-    print("Train dataset length: ", len(train_dataset))
-    print("Test dataset length: ", len(test_dataset))
-    print("Finetune dataset length: ", len(finetune_dataset))
-    print("Validation dataset length: ", len(validation_dataset))
+    print("Data spec")
+    print("  Data factor (proportion of all Shakespeare's plays): ", args.factor)
+    print("  Token type number: ", len(vocab_to_ind))
+    print("  Train dataset length: ", len(train_dataset))
+    print("  Test dataset length: ", len(test_dataset))
+    print("  Finetune dataset length: ", len(finetune_dataset))
+    print("  Validation dataset length: ", len(validation_dataset))
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=finetune_batch_size, shuffle=True, generator=torch.Generator(device=device))
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=finetune_batch_size, shuffle=True, generator=torch.Generator(device=device))
