@@ -49,10 +49,6 @@ class MultiHeadAttention(nn.Module):
         self.dv = self.dk
         self.block_size = block_size
 
-        self.WQ = nn.Linear(dmodel, self.dk)
-        self.WK = nn.Linear(dmodel, self.dk)
-        self.WV = nn.Linear(dmodel, self.dv)
-
         self.heads = nn.ModuleDict({
             f'head_{i}': Attention(self.block_size, self.dmodel, self.dk, self.dv, mask)
             for i in range(self.num_heads)
