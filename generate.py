@@ -7,6 +7,7 @@ import numpy as np
 from models.transformer import Transformer
 from hyperparams import *
 from constants import *
+from data.utils import get_artifacts_name
 from initialize import initialize_storage
 
 
@@ -49,8 +50,8 @@ if __name__ == "__main__":
     dataset = parser.dataset
     location = parser.location
     parallel = parser.parallel.lower()
-    model_artifact_name = f"model-with-{tokenizer}-tokenizer-on-dataset-{dataset}"
 
+    model_artifact_name, dataset_artifact_name, vocab_artifact_name = get_artifacts_name(tokenizer, dataset)
     # init storage & load the vocab
     vocab_name = f"vocab-{tokenizer}-for-dataset-{dataset}.pth"
     wandb.init(project=wandb_project)

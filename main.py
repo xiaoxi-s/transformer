@@ -5,7 +5,7 @@ import torch.optim as optim
 
 
 from models.transformer import Transformer
-from data.utils import get_play_paths
+from data.utils import get_play_paths, get_artifacts_name
 from hyperparams import *
 from constants import *
 from train import train
@@ -50,6 +50,8 @@ if __name__ == "__main__":
     else:
         raise ValueError("Invalid dataset. Can only be default or preprocessed.")
     play_paths = get_play_paths(dataset_path)
+
+    model_artifact_name, dataset_artifact_name, vocab_artifact_name = get_artifacts_name(tokenizer, dataset)
 
     # Initialize the vocab, dataset, and storage
     initialize_torch()
