@@ -6,6 +6,7 @@ data/pre_vocab_to_ind.pkl
 input.txt
 artifacts/
 wandb/
+*.pth
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
