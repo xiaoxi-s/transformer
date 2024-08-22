@@ -1,7 +1,8 @@
 import argparse
-
+import wandb
 import torch
 import torch.nn as nn
+import os
 
 import numpy as np
 
@@ -18,12 +19,16 @@ if __name__ == "__main__":
     argparser.add_argument('-p', '--parallel', default="true", type=str)      # option that takes a value
     argparser.add_argument('-t', '--tokenizer', default='char', type=str)
     argparser.add_argument('-d', '--dataset', default='default', type=str)
+    argparser.add_argument('-l', '--location', default='local', type=str)
 
     parser = argparser.parse_args()
     model_name = parser.model_name
     max_token = parser.max_token
     tokenizer = parser.tokenizer
     dataset = parser.dataset
+    location = parser.location
+    parallel = parser.parallel.lower()
+    model_artifact_name = f'model-with-{tokenizer}-tokenizer-on-dataset-{dataset}'
 
     print("Loading vocab ...")
     if tokenizer == 'char' and dataset == 'default':
@@ -44,11 +49,24 @@ if __name__ == "__main__":
     print("Vocab size: ", len(vocab_to_ind))
 
     model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=4, num_of_encoder_layers=4, dmodel=dmodel).to(device) 
-    if parser.parallel.lower() == "true" or parser.parallel.lower() == "t":
+    if parallel == "true" or parallel == "t":
         model = nn.DataParallel(model) 
 
-    model.load_state_dict(torch.load(f'data/{model_name}'))
+    if location == 'local':
+        h = torch.load(f'data/{model_name}')
+        model.load_state_dict(h)
+    elif location == 'wandb':
+        print("Init wandb: ")
+        wandb.init(project="shakespear-transformer")
+        model_artifact = wandb.use_artifact(f"{model_artifact_name}:latest", type='model') 
+        artifact_dir = model_artifact.download()
+        model_path = os.path.join(artifact_dir, model_name) 
+        print("Load model from path: ", model_path)
+
+        model.load_state_dict(torch.load(model_path)) 
+        print("Done loading model")
+
     model.eval()
 
-    generate_contents(model, vocab_to_ind, ind_to_vocab=ind_to_vocab, tokenizer=tokenizer, device=device, max_num_of_tokens=max_token)
+    # generate_contents(model, vocab_to_ind, ind_to_vocab=ind_to_vocab, tokenizer=tokenizer, device=device, max_num_of_tokens=max_token)
     
