@@ -1,5 +1,6 @@
 import argparse
 import torch
+import wandb
 import torch.nn as nn
 import numpy as np
 
@@ -52,6 +53,7 @@ if __name__ == "__main__":
 
     # init storage & load the vocab
     vocab_name = f"vocab-{tokenizer}-for-dataset-{dataset}.pth"
+    wandb.init(project=wandb_project)
     storage = initialize_storage(
         location,
         wandb_project,
