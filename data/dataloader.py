@@ -3,8 +3,8 @@ import torch
 from torch.utils.data import Dataset 
 
 class BabyShakespeareDataset(Dataset):
-    def __init__(self, data, device):
-        self.data = data.to(device)
+    def __init__(self, data):
+        self.data = data
 
     def __len__(self):
         return len(self.data)
