@@ -1,7 +1,6 @@
 import argparse
 import wandb
 from hyperparams import *
-from data.utils import load_pickled_data
 
 
 if __name__ == '__main__':
@@ -9,7 +8,6 @@ if __name__ == '__main__':
                     prog='shakespear-training',
                     description='pretrain shakespeare transformer')
     parser.add_argument('-n', '--model-name', type=str)
-    # parser.add_argument('-a', '--model-artifact-name', type=str)
     parser.add_argument('-d', '--dataset', default='default', type=str)
     parser.add_argument('-p', '--parallel', default="true", type=str)      # option that takes a value
     parser.add_argument('-t', '--tokenizer', default='char', type=str)
