@@ -1,14 +1,20 @@
 # Transformer with Shakespeare
 
-This repository contains the code for the implementation of Transformer architecture in the paper [Attention is All You Need](https://arxiv.org/pdf/1706.03762.pdf). This README serves as a basic intro to the takeaways, results, and training steps for better documentation of the project. 
+This repository contains the code for the implementation of Transformer architecture in the paper [Attention is All You Need](https://arxiv.org/pdf/1706.03762.pdf). This README serves as a research proposal into the model based on Shakespeare's plays. Interesting topics include 
+- Benchmark the performance on Shakespeare dataset
+- Compare the effect of different tokenizers (word-level vs. char-level) on Transformers
+- Compare the effect of clean vs. dirty dataset on Transformers
+- How to optimize training speed with multiple GPUs using `torch.nn.DataParallel` (can also extends to `torch.nn.DistributedDataParallel`).
 
 The project was mainly inspired by 
-1. the motivation to implement the native Transformer architecture
-2. generating baby Shakespeare text is interesting :) and it is good to have a simple task for the model to run on 
+1. The motivation to implement the native Transformer architecture
+2. Generating baby Shakespeare text is interesting :) and it is good to have a simple task for the model to run on 
 
 Lastly, thanks to [Andrej's project](https://github.com/karpathy/ng-video-lecture) for providing the idea of generating Shakespeare text, some insights on data shaping, and a nice introduction on Transformer.
 
-## Takeaways
+Note: The project does not implement a decoder-only architecture but the full encoder-decoder architecture in the original Transformer paper. The purpose is to gain some engineering practice. Results show that given similar number of parameter 10M (decoder only in Andrej's project) vs. 11M (this project), the output is indistinguishable. 
+
+## Takeaways (Outdated - will be updated)
 
 1. The objective function can be different for different models. Define input and compute loss carefully.
 2. Evaluate different datasets before training. Test whether the produced model makes sense by using a partial dataset. 
@@ -16,7 +22,6 @@ Lastly, thanks to [Andrej's project](https://github.com/karpathy/ng-video-lectur
     1. the dataset design since we need to probably maintain a high-quality "Q&A" like dataset. 
     2. the training process as developers need to think about how to feed the previous output to the model without giving it the answer. 
 4. It is worth building a data pipeline from the beginning, instead of thinking about each data processing step on demand. 
-
 
 ## Comparisons
 
