@@ -17,6 +17,21 @@ Lastly, thanks to [Andrej's project](https://github.com/karpathy/ng-video-lectur
     2. the training process as developers need to think about how to feed the previous output to the model without giving it the answer. 
 4. It is worth building a data pipeline from the beginning, instead of thinking about each data processing step on demand. 
 
+
+## Comparisons
+
+### Compare tokenizer
+
+There are two types of tokenizer supported: one is word-level tokenizer and the other is character-level tokenizer. The word tokenizer splits words, spaces, and other non-alphabetical characters as distinct tokens. It will create a vocabulary of size ~27000.
+
+### Compare dataset
+
+There are two datasets used. 
+1. The ["raw" Shakespeare dataset](https://github.com/ravexina/shakespeare-plays-dataset-scraper/tree/38061c392481af43e226b735480454851802c257): This dataset contains some format artifacts like titles `Shakespeare_homepage | Cymbeline | Entire play` and separators of consecutive asterisks `******`.
+2. [The preprocessed Shakespeare dataset](https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt): This dataset is much cleaner than the previous one. 
+
+## Sample outputs
+
 Part of the generated samples:
 ```
 QUEEN whom Gentleman
@@ -33,15 +48,6 @@ requireth's.
      Neighbour's : ****
      Another repose, But the ****
 ```
-
-## Specifications 
-
-We have the following key parameters: 
-
-- Token type number: 27743
-- Dataset size: 2045795 (as it contains 36 Shakespeare's plays)
-- Model parameters: 16 M parameters
-- Data factor: 10%. Since the dataset is large, a partial dataset is used. The first 10% of all Shakespeare play tokens. The number 10% is called the data factor.
 
 ## Setup and Training
 
