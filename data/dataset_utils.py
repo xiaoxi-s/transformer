@@ -51,7 +51,7 @@ def generate_dataset_from_tokens(play_tokens, block_size):
     return data 
 
 
-def load_dataset(vocab_to_ind, factor, tokenizer, play_paths, block_size=8):
+def load_dataset(vocab_to_ind, tokenizer, play_paths, block_size=8):
     if tokenizer == 'char':
         tokenizer_func = char_tokenize_play
     else:
@@ -72,19 +72,16 @@ def load_dataset(vocab_to_ind, factor, tokenizer, play_paths, block_size=8):
         data += dataset_from_one_play
 
     print("Length of data: ", len(data))
-    end_of_selected_data = int(len(data) * factor)
     print("Tensorizing data...")
-    data = torch.Tensor(data)[0:end_of_selected_data].long()
+    data = torch.Tensor(data).long()
     print("data shape: ", data.shape)
-    
+
     return data
 
 
-def generate_dataset(vocab_to_ind, play_paths, factor, tokenizer, block_size=8):
+def generate_dataset(vocab_to_ind, play_paths, tokenizer, block_size=8):
     """Get the training and testing dataset."""
-    print("Loading data...")
-
-    data = load_dataset(vocab_to_ind, factor, tokenizer, play_paths, block_size)
+    data = load_dataset(vocab_to_ind, tokenizer, play_paths, block_size)
     dataset = BabyShakespeareDataset(data)
     return dataset
 

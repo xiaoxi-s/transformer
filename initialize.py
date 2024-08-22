@@ -56,7 +56,7 @@ def initialize_storage(
 
 
 def intialize_vocab(storage, vocab_name, tokenizer, play_paths):
-    print("Vocab: ")
+    print("Vocab storage: ")
     if storage.vocab_exists(vocab_name):
         print("  Existing vocab artifact found")
         vocab_to_ind = storage.load_vocab(vocab_name)
@@ -74,6 +74,7 @@ def intialize_vocab(storage, vocab_name, tokenizer, play_paths):
 def initialize_dataset(
     dataset_name, storage, vocab_to_ind, play_paths, factor, block_size, tokenizer
 ):
+    print("Dataset storage: ")
     if storage.dataset_exists(dataset_name):
         print("  Existing dataset artifact found")
         full_dataset = storage.load_dataset(dataset_name)
@@ -84,13 +85,15 @@ def initialize_dataset(
         full_dataset = generate_dataset(
             vocab_to_ind,
             play_paths=play_paths,
-            factor=factor,
             block_size=block_size,
             tokenizer=tokenizer,
         )
         print("  Storing dataset artifact")
         storage.store_dataset(dataset_name, full_dataset)
         print("  Dataset artifact stored")
+
+    end_of_selected_data = int(len(full_dataset) * factor)
+    full_dataset = full_dataset[0:end_of_selected_data]
     train_dataset, test_dataset, finetune_dataset, validation_dataset = (
         torch.utils.data.random_split(
             full_dataset, [0.7, 0.1498, 0.0004, 0.1498], torch.Generator(device=device)
