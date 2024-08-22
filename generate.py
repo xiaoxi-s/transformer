@@ -70,8 +70,8 @@ if __name__ == "__main__":
         len(vocab_to_ind),
         dropout=dropout,
         block_size=block_size,
-        num_of_decoder_layers=4,
-        num_of_encoder_layers=4,
+        num_of_decoder_layers=num_of_decoder_layers,
+        num_of_encoder_layers=num_of_encoder_layers,
         dmodel=dmodel,
     ).to(device)
     if parallel == "true" or parallel == "t":
