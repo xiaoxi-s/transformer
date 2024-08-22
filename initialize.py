@@ -96,7 +96,7 @@ def initialize_dataset(
     full_dataset = full_dataset[0:end_of_selected_data]
     train_dataset, test_dataset, finetune_dataset, validation_dataset = (
         torch.utils.data.random_split(
-            full_dataset, [0.7, 0.1498, 0.0004, 0.1498], torch.Generator(device=device)
+            full_dataset, [0.7, 0.14, 0.02, 0.14], torch.Generator(device=device)
         )
     )
     return train_dataset, test_dataset, finetune_dataset, validation_dataset
