@@ -1,178 +1,39 @@
-import pickle
-import torch
-
-import numpy as np
-
-from os import listdir
-from os.path import isfile, join
-
-from .dataloader import BabyShakespeareDataset
+import os
 
 def read_corpus(file_path):
     """Read file, return a list of list of words."""
-    play_in_string = ''
-    with open(file_path, 'r', encoding='utf-8') as infile:
+    play_in_string = ""
+    with open(file_path, "r", encoding="utf-8") as infile:
         play_in_string = infile.read()
-    
-    # for i in range(10):
-    #     for j in range(30):
-    #         print(my_str[i*30+j], end='')
-    #     input()
     play_in_string = play_in_string.strip()
-
     return play_in_string
 
 
 def get_char_type(c):
     """Get the type of the character."""
     if c.isalpha():
-        return 'alpha'
+        return "alpha"
     elif c.isdigit():
-        return 'digit'
-    elif c == ' ':
-        return 'space'
-    elif c == '\n':
-        return 'newline'
+        return "digit"
+    elif c == " ":
+        return "space"
+    elif c == "\n":
+        return "newline"
     elif c.isspace():
-        return 'otherspaces'
+        return "otherspaces"
     else:
-        return 'other'
+        return "other"
 
 
-def word_tokenize_play(play_string, vocab_to_ind):
-    """Tokenize the play string."""
+def get_play_paths(dataset_path):
+    # accomadate for single txt file (the preprocessed dataset) vs. a directory of txt files (the raw dataset)
+    if os.path.isdir(dataset_path):
+        play_paths = [
+            os.path.join(dataset_path, f)
+            for f in os.listdir(dataset_path)
+            if os.path.isfile(os.path.join(dataset_path, f))
+        ]
+    elif os.path.isfile(dataset_path):
+        play_paths = [dataset_path]
 
-    play_length = len(play_string)
-    i = 0
-    tokens = [vocab_to_ind['<start>']]
-    while i < play_length:
-        token = ''
-        c_type = get_char_type(play_string[i])
-        j = i
-        while j < play_length and get_char_type(play_string[j]) == c_type:
-            j += 1
-        token = play_string[i:j]
-        tokens.append(vocab_to_ind[token])
-        i = j
-    tokens.append(vocab_to_ind['<stop>'])
-
-    return tokens
-
-def char_tokenize_play(play_string, vocab_to_ind):
-    chars = list(play_string)
-    tokens = list(map(lambda c: vocab_to_ind[c], chars))
-    return tokens
-
-
-def generate_dataset_from_tokens(play_tokens, block_size):
-    """Generate a sequence of tokens from the play string."""
-
-    data = []
-    for i in range(0, len(play_tokens) - block_size - 1, block_size): 
-        if i + block_size + 1 < len(play_tokens):
-            data.append((play_tokens[i:i + block_size], play_tokens[i + 1: i + block_size + 1]))
-        elif i + block_size + 1 >= len(play_tokens): 
-            if i == len(play_tokens) - 1:
-                break
-            else:
-                data.append((play_tokens[i: -1], play_tokens[i + 1:]))
-
-    return data 
-
-
-def load_pickled_data(file_name, picked_data_path='./data/'):
-    with open(join(picked_data_path, file_name), 'rb') as infile:
-        vocab_to_ind = pickle.load(infile)
-    
-    return vocab_to_ind
-
-
-def pickle_data(data, file_name, picked_data_path='./data/'):
-    """Pickle the data."""
-    with open(join(picked_data_path, file_name), 'wb') as outfile:
-        pickle.dump(data, outfile)
-
-
-def load_dataset(vocab_to_ind, factor, tokenizer, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
-    if tokenizer == 'char':
-        tokenizer_func = char_tokenize_play
-        data_path = './data/char_data.npz'
-    else:
-        tokenizer_func = word_tokenize_play
-        data_path='./data/data.npz'
-    plays = [join(shakespeare_path, f) for f in listdir(shakespeare_path) if isfile(join(shakespeare_path, f))]
-    block_size = block_size
-    data = []
-    if not isfile(data_path):
-        data = []
-        for p in plays:
-            print("Play: ", p)
-            print("  Reading...")
-            play_in_string = read_corpus(p)
-            print("  Tokenizing...")
-            play_tokens = tokenizer_func(play_in_string, vocab_to_ind)
-            print("  Generating dataset from tokens...")
-            dataset_from_one_play = generate_dataset_from_tokens(play_tokens, block_size)
-            print("  Dataset length: ", len(dataset_from_one_play))
-            data += dataset_from_one_play
-
-        np.savez_compressed(data_path, data, allow_pickle=False)
-
-    data = np.load(data_path, allow_pickle=True)['arr_0']    
-    print("Length of data: ", len(data))
-    end_of_selected_data = int(len(data) * factor)
-    print("Shape of np data: ", data.shape)
-    print("Tensorizing data...")
-    data = torch.from_numpy(data)[0:end_of_selected_data].long()
-    print("data shape: ", data.shape)
-    
-    return data
-
-
-def load_pre_processed_data(vocab_to_ind, factor, tokenizer, block_size=8, pre_processed_dataset_path='./input.txt'):
-    # wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
-    with open(pre_processed_dataset_path, 'r', encoding='utf-8') as f:
-        text = f.read()
-
-    tokenized_text = []
-    for c in text:
-        tokenized_text.append(vocab_to_ind[c])
-    data = generate_dataset_from_tokens(tokenized_text, block_size)
-
-    # Train and test splits
-    end_of_selected_data = int(len(data) * factor)
-    data = torch.tensor(data, dtype=torch.long)[0:end_of_selected_data]
-    return data
-
-
-def get_train_and_test_dataset(vocab_to_ind, dataset, factor, tokenizer, device='cpu', block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
-    """Get the training and testing dataset."""
-    print("Loading data...")
-    if dataset == 'default':
-        data = load_dataset(vocab_to_ind, factor, tokenizer, block_size, shakespeare_path)
-    else:
-        data = load_pre_processed_data(vocab_to_ind, factor, tokenizer, block_size) 
-    dataset = BabyShakespeareDataset(data, device)
-    train_dataset, test_dataset, finetune_dataset, validation_dataset = torch.utils.data.random_split(dataset, [0.7, 0.1498, 0.0004, 0.1498], torch.Generator(device))
-    return train_dataset, test_dataset, finetune_dataset, validation_dataset
-
-
-def generate_contents(model, vocab_to_ind, ind_to_vocab, tokenizer, device='cpu', max_num_of_tokens=1000):
-    """Generate contents from the model."""
-
-    output = None
-    token_indx = [0]
-    with torch.no_grad():
-        for i in range(max_num_of_tokens):
-            input = torch.tensor(token_indx).unsqueeze(0).to(device)
-            if output is None:
-                output = model(input, input)
-            else:
-                output = model(input, torch.tensor(token_indx).unsqueeze(0).to(device))
-            output = output[:, -1, :]
-            output = torch.softmax(output, dim=-1) #[1, vocab_size]
-            output = torch.multinomial(output, num_samples=1)
-            token_indx.append(output.item())
-            if tokenizer == 'word'and output.item() == vocab_to_ind['<stop>']:
-                break
-            print(ind_to_vocab[output.item()], end='')
+    return play_paths
