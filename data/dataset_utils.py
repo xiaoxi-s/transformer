@@ -1,10 +1,4 @@
-import pickle
 import torch
-
-import numpy as np
-
-from os import listdir
-from os.path import isfile, join
 
 from .dataloader import BabyShakespeareDataset
 from .utils import read_corpus, get_char_type
