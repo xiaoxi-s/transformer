@@ -84,8 +84,6 @@ if __name__ == "__main__":
     print("  Finetune dataset length: ", len(finetune_dataset))
     print("  Validation dataset length: ", len(validation_dataset))
 
-    num_of_decoder_layers = 4
-    num_of_encoder_layers = 4
     model = Transformer(
         len(vocab_to_ind),
         dropout=dropout,
