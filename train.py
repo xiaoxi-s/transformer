@@ -60,7 +60,10 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs, model_
         if epoch > 1:
             print(f'Epoch {epoch + 1}/{epochs}: train loss {train_loss_history[-1]}, test loss {test_loss_history[-1]}')
 
-        if epoch > 1 and epoch % 3 == 0:
+        if (epoch <= 3 and epoch == epochs - 1) or (epoch > 3 and epoch % (epoch // 7) == 0) or epoch == epochs - 1:
+            # 1. if epoch <= 3, store the last model of the first 3 epochs
+            # 2. if epoch > 3, store at most 8 models - 7 intermediate models plus the last.
+            #    if the last model is the 7th model, it won't be stored again. 
             # Save the model
             model_name = f'{model_name_prefix}-epoch-{epoch}.pth'
             storage.store_model(model_name, model)
