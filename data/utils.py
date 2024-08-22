@@ -37,3 +37,11 @@ def get_play_paths(dataset_path):
         play_paths = [dataset_path]
 
     return play_paths
+
+
+def get_artifacts_name(tokenizer, dataset):
+    model_artifact_name = f"model-with-{tokenizer}-tokenizer-on-dataset-{dataset}"
+    dataset_artifact_name = f"dataset-{dataset}-by-tokenizer-{tokenizer}"
+    vocab_artifact_name = f"vocab-{tokenizer}-for-dataset-{dataset}"
+
+    return model_artifact_name, dataset_artifact_name, vocab_artifact_name
