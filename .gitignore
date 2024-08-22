@@ -7,6 +7,7 @@ input.txt
 artifacts/
 wandb/
 *.pth
+temp/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
