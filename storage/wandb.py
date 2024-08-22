@@ -56,7 +56,7 @@ class WandBStorage(BaseStorageBackend):
         art = wandb.Artifact(self.model_artifact_name, type="model")
         model_path = os.path.join(self.model_path, name)
         art.add_file(model_path)
-        wandb.log_artifact(art)
+        wandb.log_artifact(art, aliases=[name])
 
     def store_dataset(
         self,
@@ -127,7 +127,7 @@ class WandBStorage(BaseStorageBackend):
 
     def load_model(self, name, *args, **kwargs) -> Any:
         model_artifact = wandb.use_artifact(
-            f"{self.model_artifact_name}:latest", type="model"
+            f"{self.model_artifact_name}:{name}", type="model"
         )
         artifact_dir = model_artifact.download(root="./temp")
         model_path = os.path.join(artifact_dir, name)
