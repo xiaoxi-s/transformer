@@ -1,25 +1,45 @@
 import argparse
-import wandb
 import torch
 import torch.nn as nn
-import os
-
 import numpy as np
 
-from data.utils import load_pickled_data, get_train_and_test_dataset, generate_contents
 from models.transformer import Transformer
 from hyperparams import *
+from constants import *
+from initialize import initialize_storage
+
+
+def generate_contents(
+    model, vocab_to_ind, ind_to_vocab, tokenizer, device="cpu", max_num_of_tokens=1000
+):
+    """Generate contents from the model."""
+
+    output = None
+    token_indx = [0]
+    with torch.no_grad():
+        for i in range(max_num_of_tokens):
+            input = torch.tensor(token_indx).unsqueeze(0).to(device)
+            output = model(input, input)
+            output = output[:, -1, :]
+            output = torch.softmax(output, dim=-1)  # [1, vocab_size]
+            output = torch.multinomial(output, num_samples=1)
+            token_indx.append(output.item())
+            if tokenizer == "word" and output.item() == vocab_to_ind["<stop>"]:
+                break
+            print(ind_to_vocab[output.item()], end="")
 
 
 if __name__ == "__main__":
     np.random.seed(7777)
     argparser = argparse.ArgumentParser()
-    argparser.add_argument('-name', '--model-name', type=str)
-    argparser.add_argument('-m', '--max-token', type=int, default=1000)
-    argparser.add_argument('-p', '--parallel', default="true", type=str)      # option that takes a value
-    argparser.add_argument('-t', '--tokenizer', default='char', type=str)
-    argparser.add_argument('-d', '--dataset', default='default', type=str)
-    argparser.add_argument('-l', '--location', default='local', type=str)
+    argparser.add_argument("-name", "--model-name", type=str)
+    argparser.add_argument("-m", "--max-token", type=int, default=1000)
+    argparser.add_argument(
+        "-p", "--parallel", default="true", type=str
+    )  # option that takes a value
+    argparser.add_argument("-t", "--tokenizer", default="char", type=str)
+    argparser.add_argument("-d", "--dataset", default="default", type=str)
+    argparser.add_argument("-l", "--location", default="local", type=str)
 
     parser = argparser.parse_args()
     model_name = parser.model_name
@@ -28,45 +48,39 @@ if __name__ == "__main__":
     dataset = parser.dataset
     location = parser.location
     parallel = parser.parallel.lower()
-    model_artifact_name = f'model-with-{tokenizer}-tokenizer-on-dataset-{dataset}'
+    model_artifact_name = f"model-with-{tokenizer}-tokenizer-on-dataset-{dataset}"
 
-    print("Loading vocab ...")
-    if tokenizer == 'char' and dataset == 'default':
-        print("Loading the word tokenizer for raw Shakespeare")
-        vocab_to_ind = load_pickled_data('char_vocab_to_ind.pkl') 
-        ind_to_vocab = load_pickled_data('ind_to_vocab_char.pkl')
-    elif tokenizer == 'char' and dataset == 'preprocessed':
-        print("Loading the char tokenizer for preprocessed Shakespeare")
-        vocab_to_ind = load_pickled_data('pre_vocab_to_ind.pkl')
-        ind_to_vocab = load_pickled_data('ind_to_pre_vocab.pkl')
-    elif tokenizer == 'word':
-        print("Loading the char tokenizer for raw Shakespeare")
-        vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
-        ind_to_vocab = load_pickled_data('ind_to_vocab.pkl')
-    else:
-        raise ValueError("Invalid tokenizer. Can only be char or word.")
-    torch.set_default_device(device)
-    print("Vocab size: ", len(vocab_to_ind))
+    # init storage & load the vocab
+    vocab_name = f"vocab-{tokenizer}-for-dataset-{dataset}.pth"
+    storage = initialize_storage(
+        location,
+        wandb_project,
+        model_artifact_name,
+        dataset_artifact_name,
+        vocab_artifact_name,
+    )  # these parameters are constants for the project
+    vocab_to_ind = storage.load_vocab(vocab_name)  # assume the vocab exists
+    ind_to_vocab = {v: k for k, v in vocab_to_ind.items()}
 
-    model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=4, num_of_encoder_layers=4, dmodel=dmodel).to(device) 
+    # load the model
+    model = Transformer(
+        len(vocab_to_ind),
+        dropout=dropout,
+        block_size=block_size,
+        num_of_decoder_layers=4,
+        num_of_encoder_layers=4,
+        dmodel=dmodel,
+    ).to(device)
     if parallel == "true" or parallel == "t":
-        model = nn.DataParallel(model) 
-
-    if location == 'local':
-        h = torch.load(f'data/{model_name}')
-        model.load_state_dict(h)
-    elif location == 'wandb':
-        print("Init wandb: ")
-        wandb.init(project="shakespear-transformer")
-        model_artifact = wandb.use_artifact(f"{model_artifact_name}:latest", type='model') 
-        artifact_dir = model_artifact.download()
-        model_path = os.path.join(artifact_dir, model_name) 
-        print("Load model from path: ", model_path)
-
-        model.load_state_dict(torch.load(model_path)) 
-        print("Done loading model")
-
+        model = nn.DataParallel(model)
+    model.load_state_dict(storage.load_model(model_name))
     model.eval()
 
-    generate_contents(model, vocab_to_ind, ind_to_vocab=ind_to_vocab, tokenizer=tokenizer, device=device, max_num_of_tokens=max_token)
-    
+    generate_contents(
+        model,
+        vocab_to_ind,
+        ind_to_vocab=ind_to_vocab,
+        tokenizer=tokenizer,
+        device=device,
+        max_num_of_tokens=max_token,
+    )
