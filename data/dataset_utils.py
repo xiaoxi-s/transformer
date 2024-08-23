@@ -9,7 +9,7 @@ def word_tokenize_play(play_string, vocab_to_ind):
 
     play_length = len(play_string)
     i = 0
-    tokens = [vocab_to_ind['<start>']]
+    tokens = []
     while i < play_length:
         token = ''
         c_type = get_char_type(play_string[i])
@@ -19,7 +19,6 @@ def word_tokenize_play(play_string, vocab_to_ind):
         token = play_string[i:j]
         tokens.append(vocab_to_ind[token])
         i = j
-    tokens.append(vocab_to_ind['<stop>'])
 
     return tokens
 
@@ -30,10 +29,10 @@ def char_tokenize_play(play_string, vocab_to_ind):
 
 
 def generate_dataset_from_tokens(play_tokens, block_size):
-    """Generate a sequence of tokens from the play string."""
+    """Generate each context and target pair from the play tokens."""
 
     data = []
-    for i in range(0, len(play_tokens) - block_size - 1, block_size): 
+    for i in range(0, len(play_tokens) - block_size - 1): 
         if i + block_size + 1 < len(play_tokens):
             data.append((play_tokens[i:i + block_size], play_tokens[i + 1: i + block_size + 1]))
         elif i + block_size + 1 >= len(play_tokens): 
@@ -42,7 +41,7 @@ def generate_dataset_from_tokens(play_tokens, block_size):
             else:
                 data.append((play_tokens[i: -1], play_tokens[i + 1:]))
 
-    return data 
+    return data
 
 
 def load_dataset(vocab_to_ind, tokenizer, play_paths, block_size=8):
@@ -73,9 +72,9 @@ def load_dataset(vocab_to_ind, tokenizer, play_paths, block_size=8):
     return data
 
 
-def generate_dataset(vocab_to_ind, play_paths, tokenizer, block_size=8):
+def generate_dataset(vocab_to_ind, play_paths, tokenizer, device, block_size=8):
     """Get the training and testing dataset."""
     data = load_dataset(vocab_to_ind, tokenizer, play_paths, block_size)
-    dataset = BabyShakespeareDataset(data)
+    dataset = BabyShakespeareDataset(data, block_size, device)
     return dataset
 
