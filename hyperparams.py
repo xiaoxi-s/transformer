@@ -1,6 +1,6 @@
 import torch
 
-block_size = 256
+block_size = 128
 batch_size = 128
 dmodel = 256 
 num_of_decoder_layers = 4

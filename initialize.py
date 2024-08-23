@@ -84,6 +84,7 @@ def initialize_dataset(
         print("  Generating dataset artifact")
         full_dataset = generate_dataset(
             vocab_to_ind,
+            device=device,
             play_paths=play_paths,
             block_size=block_size,
             tokenizer=tokenizer,
