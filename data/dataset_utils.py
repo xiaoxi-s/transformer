@@ -29,10 +29,10 @@ def char_tokenize_play(play_string, vocab_to_ind):
 
 
 def generate_dataset_from_tokens(play_tokens, block_size):
-    """Generate a sequence of tokens from the play string."""
+    """Generate each context and target pair from the play tokens."""
 
     data = []
-    for i in range(0, len(play_tokens) - block_size - 1, block_size): 
+    for i in range(0, len(play_tokens) - block_size - 1): 
         if i + block_size + 1 < len(play_tokens):
             data.append((play_tokens[i:i + block_size], play_tokens[i + 1: i + block_size + 1]))
         elif i + block_size + 1 >= len(play_tokens): 
@@ -41,7 +41,7 @@ def generate_dataset_from_tokens(play_tokens, block_size):
             else:
                 data.append((play_tokens[i: -1], play_tokens[i + 1:]))
 
-    return data 
+    return data
 
 
 def load_dataset(vocab_to_ind, tokenizer, play_paths, block_size=8):
@@ -59,8 +59,10 @@ def load_dataset(vocab_to_ind, tokenizer, play_paths, block_size=8):
         play_in_string = read_corpus(p)
         print("  Tokenizing...")
         play_tokens = tokenizer_func(play_in_string, vocab_to_ind)
-        print("  Dataset length: ", len(play_tokens))
-        data += play_tokens
+        print("  Generating dataset from tokens...")
+        dataset_from_one_play = generate_dataset_from_tokens(play_tokens, block_size)
+        print("  Dataset length: ", len(dataset_from_one_play))
+        data += dataset_from_one_play
 
     print("Length of data: ", len(data))
     print("Tensorizing data...")
