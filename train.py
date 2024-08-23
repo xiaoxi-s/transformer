@@ -60,8 +60,7 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs, model_
 
         epoch_sequence.append(epoch + 1)
 
-        if epoch > 1:
-            print(f'Epoch {epoch + 1}/{epochs}: train loss {train_loss_history[-1]}, test loss {test_loss_history[-1]}')
+        print(f'Epoch {epoch + 1}/{epochs}: train loss {train_loss_history[-1]}, test loss {test_loss_history[-1]}')
 
         if (epoch <= 3 and epoch == epochs - 1) or (epoch > 3 and epoch % (epochs // 7) == 0) or epoch == epochs - 1:
             # 1. if epoch <= 3, store the last model of the first 3 epochs
