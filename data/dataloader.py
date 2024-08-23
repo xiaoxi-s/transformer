@@ -16,6 +16,6 @@ class BabyShakespeareDataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
         if isinstance(idx, slice):
-            return self.data[idx.start: idx.stop: None if idx.step is None else idx.step]
+            return BabyShakespeareDataset(self.data[idx.start: idx.stop: None if idx.step is None else idx.step], self.block_size)
         else:
             return self.data[idx: idx + self.block_size], self.data[idx + 1: idx + self.block_size + 1]
