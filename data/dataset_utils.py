@@ -60,10 +60,8 @@ def load_dataset(vocab_to_ind, tokenizer, play_paths, block_size=8):
         play_in_string = read_corpus(p)
         print("  Tokenizing...")
         play_tokens = tokenizer_func(play_in_string, vocab_to_ind)
-        print("  Generating dataset from tokens...")
-        dataset_from_one_play = generate_dataset_from_tokens(play_tokens, block_size)
-        print("  Dataset length: ", len(dataset_from_one_play))
-        data += dataset_from_one_play
+        print("  Dataset length: ", len(play_tokens))
+        data += play_tokens
 
     print("Length of data: ", len(data))
     print("Tensorizing data...")
@@ -76,6 +74,6 @@ def load_dataset(vocab_to_ind, tokenizer, play_paths, block_size=8):
 def generate_dataset(vocab_to_ind, play_paths, tokenizer, block_size=8):
     """Get the training and testing dataset."""
     data = load_dataset(vocab_to_ind, tokenizer, play_paths, block_size)
-    dataset = BabyShakespeareDataset(data)
+    dataset = BabyShakespeareDataset(data, block_size)
     return dataset
 
