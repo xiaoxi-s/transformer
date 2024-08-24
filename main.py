@@ -38,7 +38,11 @@ if __name__ == "__main__":
                 "architecture": "Shakespear's transformer",
                 "dataset": "Shakespear",
                 "epochs": epochs,
-                "factor": factor
+                "factor": factor,
+                "batch_size": batch_size,
+                "block_size": block_size,
+                "dmodel": dmodel,
+                "dropout": dropout,
             }
         )
     else:
