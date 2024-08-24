@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
     vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
 
-    model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=1, num_of_encoder_layers=1, dmodel=dmodel)
+    model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=num_of_decoder_layers, num_of_encoder_layers=num_of_encoder_layers, dmodel=dmodel)
     if args.parallel.lower() == "true" or args.parallel.lower() == "t":
         print("Enable PyTorch Data parallelism")
         available_gpus = [i for i in range(torch.cuda.device_count())]
@@ -71,13 +71,22 @@ if __name__ == "__main__":
 
     train_dataset, test_dataset, finetune_dataset, validation_dataset = get_train_and_test_dataset(vocab_to_ind, factor=factor, device=device, block_size=block_size)
 
-    print("Train dataset length: ", len(train_dataset))
-    print("Test dataset length: ", len(test_dataset))
-    print("Finetune dataset length: ", len(finetune_dataset))
-    print("Validation dataset length: ", len(validation_dataset))
+    print("Hyper Parameters: ")
+    print("  Learning rate: ", learning_rate)
+    print("  Batch size: ", batch_size)
+    print("  Block size: ", block_size)
+    print("  Dmodel: ", dmodel)
+    print("  Dropout: ", dropout)
+    print("  Number of epochs: ", epochs)
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=finetune_batch_size, shuffle=True, generator=torch.Generator(device=device))
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=finetune_batch_size, shuffle=True, generator=torch.Generator(device=device))
+    print("Data Spec: ")
+    print("  Train dataset length: ", len(train_dataset))
+    print("  Test dataset length: ", len(test_dataset))
+    print("  Finetune dataset length: ", len(finetune_dataset))
+    print("  Validation dataset length: ", len(validation_dataset))
+
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, generator=torch.Generator(device=device))
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, generator=torch.Generator(device=device))
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
