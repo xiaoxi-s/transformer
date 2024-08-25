@@ -1,5 +1,6 @@
 import pickle
 import torch
+import os
 
 import numpy as np
 
@@ -39,7 +40,15 @@ def get_char_type(c):
         return 'other'
 
 
-def tokenize_play(play_string, vocab_to_ind):
+def tokenize_play_with_char(play_string, vocab_to_ind):
+    """Tokenize the play string."""
+    tokens = []
+    for c in play_string:
+        tokens.append(vocab_to_ind[c])
+
+    return tokens
+
+def tokenize_play_with_word(play_string, vocab_to_ind):
     """Tokenize the play string."""
 
     play_length = len(play_string)
@@ -86,7 +95,14 @@ def pickle_data(data, file_name, picked_data_path='./data/'):
         pickle.dump(data, outfile)
 
 
-def load_all_data(vocab_to_ind, factor, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/', data_path='./data/data.pt'):
+def load_all_data(vocab_to_ind, tokenizer, factor, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/', data_path='./data/'):
+    if tokenizer == 'char':
+        tokenizer_func = tokenize_play_with_char
+        data_name = 'char_data.pt'
+    elif tokenizer == 'word':
+        tokenizer_func = tokenize_play_with_word
+        data_name = 'word_data.pt'
+    data_path = os.path.join(data_path, data_name)
     plays = [join(shakespeare_path, f) for f in listdir(shakespeare_path) if isfile(join(shakespeare_path, f))]
     block_size = block_size
     data = []
@@ -97,7 +113,7 @@ def load_all_data(vocab_to_ind, factor, block_size=8, shakespeare_path='./shakes
             print("  Reading...")
             play_in_string = read_corpus(p)
             print("  Tokenizing...")
-            play_tokens = tokenize_play(play_in_string, vocab_to_ind)
+            play_tokens = tokenizer_func(play_in_string, vocab_to_ind)
             print("  Generating dataset from tokens...")
             # dataset_from_one_play = generate_dataset_from_tokens(play_tokens, vocab_to_ind, block_size)
             # print("  Dataset length: ", len(dataset_from_one_play))
@@ -113,10 +129,10 @@ def load_all_data(vocab_to_ind, factor, block_size=8, shakespeare_path='./shakes
     return data[0: end_of_selected_data]
 
 
-def get_train_and_test_dataset(vocab_to_ind, factor, device='cpu', block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
+def get_train_and_test_dataset(vocab_to_ind, tokenizer, factor, device='cpu', block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
     """Get the training and testing dataset."""
     print("Loading data...")
-    data = load_all_data(vocab_to_ind, factor, block_size, shakespeare_path)
+    data = load_all_data(vocab_to_ind, tokenizer, factor, block_size, shakespeare_path)
     data = data.to(device)
     # train, test, finetune, validation ratio: 0.7, 0.1, 0.1, 0.1
     train_ind = int(len(data) * 0.7)

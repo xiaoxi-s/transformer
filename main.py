@@ -23,11 +23,13 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--factor', default=0.0001, type=float)      # option that takes a value
     parser.add_argument('-p', '--parallel', default="true", type=str)      # option that takes a value
     parser.add_argument('-q', '--quiet-wandb', action="store_false")
+    parser.add_argument('-t', '--tokenizer', default='char', type=str)           # positional argument
 
     args = parser.parse_args()
     epochs = args.epochs 
     factor = args.factor
     quiet_wandb = args.quiet_wandb
+    tokenizer = args.tokenizer
 
     if quiet_wandb:
         print("Enable wandb")
@@ -58,7 +60,12 @@ if __name__ == "__main__":
     torch.set_default_device(device)
     torch.set_default_dtype(torch.float64)
 
-    vocab_to_ind = load_pickled_data('vocab_to_ind.pkl') 
+    if tokenizer == 'char':
+        vocab_to_ind = load_pickled_data('char_vocab_to_ind.pkl')
+    elif tokenizer == 'word':
+        vocab_to_ind = load_pickled_data('word_vocab_to_ind.pkl')
+    else:
+        raise ValueError("Tokenizer not supported")
 
     model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=num_of_decoder_layers, num_of_encoder_layers=num_of_encoder_layers, dmodel=dmodel)
     if args.parallel.lower() == "true" or args.parallel.lower() == "t":
@@ -69,7 +76,7 @@ if __name__ == "__main__":
     print(sum(p.numel() for p in model.parameters())/1e6, 'M parameters')
     print("Token type number: ", len(vocab_to_ind))
 
-    train_dataset, test_dataset, finetune_dataset, validation_dataset = get_train_and_test_dataset(vocab_to_ind, factor=factor, device=device, block_size=block_size)
+    train_dataset, test_dataset, finetune_dataset, validation_dataset = get_train_and_test_dataset(vocab_to_ind, tokenizer=tokenizer, factor=factor, device=device, block_size=block_size)
 
     print("Hyper Parameters: ")
     print("  Learning rate: ", learning_rate)

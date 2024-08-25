@@ -57,8 +57,7 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
 
         epoch_sequence.append(epoch + 1)
 
-        if epoch > 1:
-            print(f'Epoch {epoch + 1}/{epochs}: train loss {train_loss_history[-1]}, test loss {test_loss_history[-1]}')
+        print(f'Epoch {epoch + 1}/{epochs}: train loss {train_loss_history[-1]}, test loss {test_loss_history[-1]}')
 
         if epoch > 1 and epoch % 3 == 0:
             # Save the model
