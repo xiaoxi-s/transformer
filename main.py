@@ -4,11 +4,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from torch.nn import functional as F
-
-from tqdm import tqdm
-from matplotlib import pyplot as plt
-
 from models.transformer import Transformer 
 from data.utils import load_pickled_data, get_train_and_test_dataset
 from hyperparams import *
