@@ -59,10 +59,8 @@ def tokenize_play(play_string, vocab_to_ind):
     return tokens
 
 
-def generate_dataset_from_tokens(play_tokens, vocab_to_ind, block_size):
-    """Generate a sequence of tokens from the play string."""
-    stop_ind = vocab_to_ind['<stop>']
-
+def generate_dataset_from_tokens(play_tokens, block_size):
+    """Generate a sequence of tokens from the play token."""
     data = []
     for i in range(len(play_tokens) - block_size - 1): 
         # training_data = (play_tokens[i:i + block_size], play_tokens[i + 1: i + block_size + 1])
@@ -88,7 +86,7 @@ def pickle_data(data, file_name, picked_data_path='./data/'):
         pickle.dump(data, outfile)
 
 
-def load_all_data(vocab_to_ind, factor, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/', data_path='./data/data.npz'):
+def load_all_data(vocab_to_ind, factor, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/', data_path='./data/data.pt'):
     plays = [join(shakespeare_path, f) for f in listdir(shakespeare_path) if isfile(join(shakespeare_path, f))]
     block_size = block_size
     data = []
@@ -101,20 +99,16 @@ def load_all_data(vocab_to_ind, factor, block_size=8, shakespeare_path='./shakes
             print("  Tokenizing...")
             play_tokens = tokenize_play(play_in_string, vocab_to_ind)
             print("  Generating dataset from tokens...")
-            dataset_from_one_play = generate_dataset_from_tokens(play_tokens, vocab_to_ind, block_size)
-            print("  Dataset length: ", len(dataset_from_one_play))
-            data += dataset_from_one_play
-        
-        np.savez_compressed('./data/data.npz', data, allow_pickle=False)
+            # dataset_from_one_play = generate_dataset_from_tokens(play_tokens, vocab_to_ind, block_size)
+            # print("  Dataset length: ", len(dataset_from_one_play))
+            data += play_tokens
+        data = torch.tensor(data, dtype=torch.long)
+        torch.save(data, data_path)
 
-    data = np.load('./data/data.npz', allow_pickle=True)['arr_0']    
-    print("Length of data: ", len(data))
-    end_of_selected_data = int(len(data) * factor)
-    print("Shape of np data: ", data.shape)
-    print("Tensorizing data...")
-    data = torch.from_numpy(data)[0:end_of_selected_data].long()
-    print("data shape: ", data.shape)
-    
+    # data = np.load(data_path, allow_pickle=True)['arr_0']    
+    data = torch.load(data_path)
+    print("data size: ", data.size())
+    # end_of_selected_data = int(len(data) * factor)
     return data
 
 
@@ -122,8 +116,22 @@ def get_train_and_test_dataset(vocab_to_ind, factor, device='cpu', block_size=8,
     """Get the training and testing dataset."""
     print("Loading data...")
     data = load_all_data(vocab_to_ind, factor, block_size, shakespeare_path)
-    dataset = BabyShakespeareDataset(data, device)
-    train_dataset, test_dataset, finetune_dataset, validation_dataset = torch.utils.data.random_split(dataset, [0.7, 0.1498, 0.0004, 0.1498], torch.Generator(device))
+    data = data.to(device)
+    # train, test, finetune, validation ratio: 0.7, 0.1, 0.1, 0.1
+    train_ind = int(len(data) * 0.7)
+    test_ind = int(len(data) * 0.8)
+    finetune_ind = int(len(data) * 0.9)
+    train_data = data[:train_ind]
+    test_data = data[train_ind:test_ind]
+    finetune_data = data[test_ind:finetune_ind]
+    validation_data = data[finetune_ind:]
+
+    del data
+
+    train_dataset = BabyShakespeareDataset(generate_dataset_from_tokens(train_data, block_size), device)
+    test_dataset = BabyShakespeareDataset(generate_dataset_from_tokens(test_data, block_size), device)
+    finetune_dataset = BabyShakespeareDataset(generate_dataset_from_tokens(finetune_data, block_size), device)
+    validation_dataset = BabyShakespeareDataset(generate_dataset_from_tokens(validation_data, block_size), device)
     return train_dataset, test_dataset, finetune_dataset, validation_dataset
 
 def generate_contents(model, vocab_to_ind, ind_to_vocab, device='cpu', max_num_of_tokens=1000):

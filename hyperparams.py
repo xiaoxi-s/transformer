@@ -1,11 +1,11 @@
 import torch
 
-block_size = 128
-batch_size = 200
+block_size = 256
+batch_size = 100
 dmodel = 256 
 learning_rate = 0.00001
 cuda_available = torch.cuda.is_available()
-dropout = 0.2
+dropout = 0.4
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 num_of_decoder_layers=1
 num_of_encoder_layers=1
