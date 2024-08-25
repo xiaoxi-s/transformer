@@ -107,9 +107,10 @@ def load_all_data(vocab_to_ind, factor, block_size=8, shakespeare_path='./shakes
 
     # data = np.load(data_path, allow_pickle=True)['arr_0']    
     data = torch.load(data_path)
-    print("data size: ", data.size())
-    # end_of_selected_data = int(len(data) * factor)
-    return data
+    print("corpus token size: ", data.size())
+    end_of_selected_data = int(len(data) * factor)
+    print("Selected corpus token size: ", end_of_selected_data)
+    return data[0: end_of_selected_data]
 
 
 def get_train_and_test_dataset(vocab_to_ind, factor, device='cpu', block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
