@@ -33,8 +33,6 @@ def build_word_vocab(path_to_plays = '../shakespeare/shakespeare-db/'):
         string = read_corpus(p)
         play_length = len(string)
 
-        vocab['<start>'] += 1
-
         i = 0
         while i < play_length:
             token = ''
@@ -45,13 +43,8 @@ def build_word_vocab(path_to_plays = '../shakespeare/shakespeare-db/'):
             token = string[i:j]
             vocab[token] += 1
 
-            # if i < 400:
-            #     print(token)
-
             i = j
 
-        vocab['<stop>'] += 1
-    
     return vocab
 
 
