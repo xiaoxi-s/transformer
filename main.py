@@ -4,6 +4,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+from os import listdir
+from os.path import isfile, join
+
 from models.transformer import Transformer 
 from data.utils import load_pickled_data, get_train_and_test_dataset
 from hyperparams import *
@@ -19,12 +22,14 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--parallel', default="true", type=str)      # option that takes a value
     parser.add_argument('-q', '--quiet-wandb', action="store_false")
     parser.add_argument('-t', '--tokenizer', default='char', type=str)           # positional argument
+    parser.add_argument('-d', '--dataset-name', default='default', type=str)           # positional argument
 
     args = parser.parse_args()
     epochs = args.epochs 
     factor = args.factor
     quiet_wandb = args.quiet_wandb
     tokenizer = args.tokenizer
+    dataset_name = args.dataset_name
 
     if quiet_wandb:
         print("Enable wandb")
@@ -55,12 +60,17 @@ if __name__ == "__main__":
     torch.set_default_device(device)
     torch.set_default_dtype(torch.float64)
 
-    if tokenizer == 'char':
-        vocab_to_ind = load_pickled_data('char_vocab_to_ind.pkl')
-    elif tokenizer == 'word':
-        vocab_to_ind = load_pickled_data('word_vocab_to_ind.pkl')
+    vocab_path = f"{tokenizer}_vocab_to_ind_on_{dataset_name}.pkl"
+    vocab_to_ind = load_pickled_data(vocab_path)
+
+    if dataset_name == 'default':
+        dataset_path = './shakespeare/shakespeare-db/'
+    elif dataset_name == 'preprocessed':
+        dataset_path = './input.txt'
+    if isfile(dataset_path):
+        plays = [dataset_path]
     else:
-        raise ValueError("Tokenizer not supported")
+        plays = [join(dataset_path, f) for f in listdir(dataset_path) if isfile(join(dataset_path, f))]
 
     model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=num_of_decoder_layers, num_of_encoder_layers=num_of_encoder_layers, dmodel=dmodel)
     if args.parallel.lower() == "true" or args.parallel.lower() == "t":
@@ -71,7 +81,7 @@ if __name__ == "__main__":
     print(sum(p.numel() for p in model.parameters())/1e6, 'M parameters')
     print("Token type number: ", len(vocab_to_ind))
 
-    train_dataset, test_dataset, finetune_dataset, validation_dataset = get_train_and_test_dataset(vocab_to_ind, tokenizer=tokenizer, factor=factor, device=device, block_size=block_size)
+    train_dataset, test_dataset, finetune_dataset, validation_dataset = get_train_and_test_dataset(vocab_to_ind, dataset_name, plays, tokenizer=tokenizer, factor=factor, device=device, block_size=block_size)
 
     print("Hyper Parameters: ")
     print("  Learning rate: ", learning_rate)
