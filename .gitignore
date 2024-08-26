@@ -2,7 +2,8 @@
 data/data.pkl
 data/data.npz
 data/data.pt
-data/char_data.pt
+data/char_data_preprocessed.pt
+data/char_data_default.pt
 wandb/
 
 # Byte-compiled / optimized / DLL files

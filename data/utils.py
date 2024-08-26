@@ -95,15 +95,13 @@ def pickle_data(data, file_name, picked_data_path='./data/'):
         pickle.dump(data, outfile)
 
 
-def load_all_data(vocab_to_ind, tokenizer, factor, block_size=8, shakespeare_path='./shakespeare/shakespeare-db/', data_path='./data/'):
+def load_all_data(vocab_to_ind, tokenizer, factor, dataset_name, plays, block_size=8, data_path='./data/'):
+    data_file_name = f"{tokenizer}_data_{dataset_name}.pt"
     if tokenizer == 'char':
         tokenizer_func = tokenize_play_with_char
-        data_name = 'char_data.pt'
     elif tokenizer == 'word':
         tokenizer_func = tokenize_play_with_word
-        data_name = 'word_data.pt'
-    data_path = os.path.join(data_path, data_name)
-    plays = [join(shakespeare_path, f) for f in listdir(shakespeare_path) if isfile(join(shakespeare_path, f))]
+    data_path = os.path.join(data_path, data_file_name)
     block_size = block_size
     data = []
     if not isfile(data_path):
@@ -129,10 +127,10 @@ def load_all_data(vocab_to_ind, tokenizer, factor, block_size=8, shakespeare_pat
     return data[0: end_of_selected_data]
 
 
-def get_train_and_test_dataset(vocab_to_ind, tokenizer, factor, device='cpu', block_size=8, shakespeare_path='./shakespeare/shakespeare-db/'):
+def get_train_and_test_dataset(vocab_to_ind, dataset_name, plays, tokenizer, factor, device='cpu', block_size=8):
     """Get the training and testing dataset."""
     print("Loading data...")
-    data = load_all_data(vocab_to_ind, tokenizer, factor, block_size, shakespeare_path)
+    data = load_all_data(vocab_to_ind, tokenizer, factor, dataset_name, plays, block_size)
     data = data.to(device)
     # train, test, finetune, validation ratio: 0.7, 0.1, 0.1, 0.1
     train_ind = int(len(data) * 0.7)
