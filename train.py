@@ -32,7 +32,7 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
                 loss.backward()  # Backpropagation
                 optimizer.step()  # Update weights
 
-                training_loss += (loss.item() * len(batch))
+                training_loss += loss.item() * B
                 pbar.update(1)  # Update the progress bar
         train_loss_history.append(training_loss / len(train_loader.dataset))
         log_registry['train_loss'] = training_loss / len(train_loader.dataset)
@@ -50,7 +50,7 @@ def train(model, train_loader, test_loader, criterion, optimizer, epochs=1):
                 labels = labels.view(B * T)
 
                 loss = criterion(logits, labels)  # Compute the loss
-                test_loss += (loss.item() * len(batch))
+                test_loss += loss.item() * B
         test_loss_history.append(test_loss / len(test_loader.dataset))
         log_registry['test_loss'] = test_loss / len(test_loader.dataset)
         wandb.log(log_registry)
