@@ -155,19 +155,13 @@ def generate_contents(model, vocab_to_ind, ind_to_vocab, device='cpu', max_num_o
     """Generate contents from the model."""
 
     output = None
-    init_word_token = np.random.choice(len(vocab_to_ind))
-    token_indx = [init_word_token]
+    token_indx = [0] 
     with torch.no_grad():
         for i in range(max_num_of_tokens):
             input = torch.tensor(token_indx).unsqueeze(0).to(device)
-            if output is None:
-                output = model(input, input)
-            else:
-                output = model(input, torch.tensor(token_indx).unsqueeze(0).to(device))
+            output = model(input, input)
             output = output[:, -1, :]
             output = torch.softmax(output, dim=-1) #[1, vocab_size]
             output = torch.multinomial(output, num_samples=1)
             token_indx.append(output.item())
-            if output.item() == vocab_to_ind['<stop>']:
-                break
             print(ind_to_vocab[output.item()], end='')

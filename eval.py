@@ -34,9 +34,9 @@ if __name__ == "__main__":
     torch.set_default_device(device)
     print("Vocab size: ", len(vocab_to_ind))
 
-    model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=1, num_of_encoder_layers=1, dmodel=dmodel).to(device) 
+    model = Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=num_of_decoder_layers, num_of_encoder_layers=num_of_encoder_layers, dmodel=dmodel).to(device) 
     if parser.parallel.lower() == "true" or parser.parallel.lower() == "t":
-        model = nn.DataParallel(Transformer(len(vocab_to_ind), dropout=dropout, block_size=block_size, num_of_decoder_layers=1, num_of_encoder_layers=1, dmodel=dmodel).to(device)) 
+        model = nn.DataParallel(model) 
 
     model.load_state_dict(torch.load(f'data/{model_name}'))
     model.eval()
