@@ -12,9 +12,8 @@ from matplotlib import pyplot as plt
 from vocab_utils import read_corpus, get_char_type
 
 
-def build_char_vocab(path_to_plays = '../shakespeare/shakespeare-db/'):
+def build_char_vocab(plays):
     vocab = defaultdict(int)
-    plays = [join(path_to_plays, f) for f in listdir(path_to_plays) if isfile(join(path_to_plays, f))]
 
     for p in plays:
         string = read_corpus(p)
@@ -24,10 +23,9 @@ def build_char_vocab(path_to_plays = '../shakespeare/shakespeare-db/'):
     return vocab
 
 
-def build_word_vocab(path_to_plays = '../shakespeare/shakespeare-db/'):
+def build_word_vocab(plays):
     """Build a dictionary for the input data to map words to indices."""
     vocab = defaultdict(int) 
-    plays = [join(path_to_plays, f) for f in listdir(path_to_plays) if isfile(join(path_to_plays, f))]
 
     for p in plays:
         string = read_corpus(p)
@@ -76,18 +74,29 @@ if __name__ == '__main__':
                     prog='shakespear-tokenizer',
                     description='tokenizer for shakespeare transformer')
     parser.add_argument('-t', '--tokenizer', default='char', type=str)           # positional argument
+    parser.add_argument('-d', '--dataset-name', default='default', type=str)           # positional argument
 
     args = parser.parse_args()
     tokenizer = args.tokenizer
+    dataset_name = args.dataset_name
+
+    vocab_name = f"{tokenizer}_vocab_to_ind_on_{dataset_name}.pkl"
+    vocab_to_ind_path = f'../data/{vocab_name}'
+    if dataset_name == 'default':
+        dataset_path = '../shakespeare/shakespeare-db/'
+    elif dataset_name == 'preprocessed':
+        dataset_path = '../input.txt'
+    else:
+        raise ValueError('Dataset not recognized')
+    if isfile(dataset_path):
+        plays = [dataset_path]
+    else:
+        plays = [join(dataset_path, f) for f in listdir(dataset_path) if isfile(join(dataset_path, f))]
 
     if tokenizer == 'char':
-        vocab = build_char_vocab()
-        vocab_to_ind_path = '../data/char_vocab_to_ind.pkl'
-        ind_to_vocab_path = '../data/char_ind_to_vocab.pkl'
+        vocab = build_char_vocab(plays)
     elif tokenizer == 'word':
-        vocab = build_word_vocab()
-        vocab_to_ind_path = '../data/word_vocab_to_ind.pkl'
-        ind_to_vocab_path = '../data/word_ind_to_vocab.pkl'
+        vocab = build_word_vocab(plays)
     else:
         raise ValueError('Tokenizer not recognized')
 
@@ -96,6 +105,3 @@ if __name__ == '__main__':
 
     with open(vocab_to_ind_path, 'wb') as outfile:
         pickle.dump(vocab_to_ind, outfile)
-
-    with open(ind_to_vocab_path, 'wb') as outfile:
-        pickle.dump(ind_to_vocab, outfile)
